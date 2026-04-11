@@ -1,7 +1,16 @@
-import type { NextConfig } from "next";
+// next.config.ts
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  /* config options here */
-};
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/dgpt66w4z/**',
+      },
+    ],
+  },
+}
 
-export default nextConfig;
+export default nextConfig

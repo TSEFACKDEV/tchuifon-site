@@ -1,0 +1,240 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  password      String
+  role          Role           @default(ADMIN)
+    // Champs reset password
+  resetToken     String?
+  resetTokenExp  DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  collaborators Collaborator[]
+  courses       Course[]
+  profile       Profile?
+  publications  Publication[]
+  supervisions  Supervision[]
+  refreshTokens RefreshToken[]
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model Profile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  fullName        String?
+  title           String?
+  bio             String?
+  photoUrl        String?
+  cvUrl           String?
+  specializations String[]
+  degrees         String[]
+  institution     String?
+  department      String?
+  email           String?
+  phone           String?
+  officeLocation  String?
+  googleScholar   String?
+  researchGate    String?
+  orcid           String?
+  linkedin        String?
+  website         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model Publication {
+  id              String                    @id @default(cuid())
+  userId          String
+  title           String?
+  abstract        String?
+  authors         String[]
+  journal         String?
+  conference      String?
+  publicationDate DateTime?
+  year            Int?
+  volume          String?
+  issue           String?
+  pages           String?
+  publisher       String?
+  doi             String?                   @unique
+  isbn            String?
+  issn            String?
+  pdfUrl          String?
+  type            PublicationType           @default(ARTICLE)
+  keywords        String[]
+  citations       Int                       @default(0)
+  slug            String?                   @unique
+  isPublished     Boolean                   @default(true)
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+  collaborators   PublicationCollaborator[]
+  user            User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([year(sort: Desc)])
+  @@index([type])
+  @@index([slug])
+  @@map("publications")
+}
+
+model Course {
+  id          String      @id @default(cuid())
+  userId      String
+  title       String?
+  code        String?
+  level       CourseLevel?
+  description String?
+  credits     Int?
+  hours       Int?
+  semester    String?
+  syllabus    String?
+  objectives  String[]
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([level])
+  @@map("courses")
+}
+
+model Supervision {
+  id           String            @id @default(cuid())
+  userId       String
+  studentName  String?
+  level        SupervisionLevel?
+  topic        String?
+  description  String?
+  startDate    DateTime?
+  endDate      DateTime?
+  status       SupervisionStatus @default(IN_PROGRESS)
+  thesisUrl    String?
+  publications String[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([level])
+  @@index([status])
+  @@map("supervisions")
+}
+
+model Collaborator {
+  id            String                    @id @default(cuid())
+  userId        String
+  name          String?
+  title         String?
+  institution   String?
+  department    String?
+  country       String?
+  email         String?
+  website       String?
+  photoUrl      String?
+  researchArea  String?
+  googleScholar String?
+  orcid         String?
+  createdAt     DateTime                  @default(now())
+  updatedAt     DateTime                  @updatedAt
+  user          User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  publications  PublicationCollaborator[]
+
+  @@map("collaborators")
+}
+
+model PublicationCollaborator {
+  publicationId  String
+  collaboratorId String
+  collaborator   Collaborator @relation(fields: [collaboratorId], references: [id], onDelete: Cascade)
+  publication    Publication  @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+
+  @@id([publicationId, collaboratorId])
+  @@map("publication_collaborators")
+}
+
+model ContactMessage {
+  id      String   @id @default(cuid())
+  name    String?
+  email   String?
+  subject String?
+  message String?
+  isRead  Boolean  @default(false)
+  sentAt  DateTime @default(now())
+
+  @@index([isRead])
+  @@index([sentAt(sort: Desc)])
+  @@map("contact_messages")
+}
+
+model PageView {
+  id        String   @id @default(cuid())
+  page      String
+  ipAddress String?
+  userAgent String?
+  viewedAt  DateTime @default(now())
+
+  @@index([page])
+  @@index([viewedAt(sort: Desc)])
+  @@map("page_views")
+}
+
+
+enum Role {
+  ADMIN
+  COLLABORATOR
+}
+
+enum PublicationType {
+  ARTICLE
+  CONFERENCE
+  BOOK_CHAPTER
+  THESIS
+  PATENT
+  POSTER
+}
+
+enum CourseLevel {
+  LICENCE
+  MASTER
+  INGENIEUR
+  DOCTORAT
+}
+
+enum SupervisionLevel {
+  INGENIEUR
+  MASTER_2
+  DOCTORAT
+  POST_DOC
+}
+
+enum SupervisionStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
