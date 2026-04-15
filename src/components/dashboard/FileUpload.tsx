@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { clsx } from 'clsx'
 import { RiUploadCloud2Line, RiFileLine, RiDeleteBinLine, RiLoader4Line } from 'react-icons/ri'
 import { toast } from '@/components/ui/Toast'
@@ -22,6 +22,13 @@ export default function FileUpload({
 
   const isImage = accept?.includes('image')
 
+  // ✅ Utiliser useEffect pour synchroniser preview avec currentUrl
+  useEffect(() => {
+    if (currentUrl !== undefined && currentUrl !== preview && !uploading) {
+      setPreview(currentUrl || null)
+    }
+  }, [currentUrl, preview, uploading]) // Dépendances correctes
+
   // Extraire le publicId depuis une URL Cloudinary
   function extractPublicId(url: string): string | null {
     try {
@@ -33,7 +40,6 @@ export default function FileUpload({
   const handleFile = async (file: File) => {
     setUploading(true)
     try {
-      // 1. Uploader le nouveau fichier
       const formData = new FormData()
       formData.append('file', file)
       formData.append('folder', folder)
@@ -50,7 +56,6 @@ export default function FileUpload({
         return
       }
 
-      // 2. Supprimer l'ancien fichier Cloudinary si présent
       if (currentUrl) {
         const oldPublicId = extractPublicId(currentUrl)
         if (oldPublicId) {
@@ -84,11 +89,6 @@ export default function FileUpload({
     setPreview(null)
     if (inputRef.current) inputRef.current.value = ''
     onRemove?.()
-  }
-
-  // Sync preview si currentUrl change de l'extérieur
-  if (currentUrl !== undefined && currentUrl !== preview && !uploading) {
-    setPreview(currentUrl || null)
   }
 
   return (
