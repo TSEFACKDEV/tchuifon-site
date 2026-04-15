@@ -14,7 +14,7 @@ export default function Footer() {
                 <RiFlaskLine className="w-4 h-4 text-white" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-white leading-none">Dr TCHUIFON Donald Raoul</p>
+                <p className="text-sm font-semibold text-white leading-none">Pr TCHUIFON Donald Raoul</p>
                 <p className="text-xs leading-none mt-0.5">Enseignant-Chercheur</p>
               </div>
             </div>
@@ -69,7 +69,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-slate-800 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-          <p>© {new Date().getFullYear()} Dr TCHUIFON Donald Raoul. Tous droits réservés.</p>
+          <p>© {new Date().getFullYear()} Pr TCHUIFON Donald Raoul. Tous droits réservés.</p>
           <a href="https://www.ensp-udo.com" target="_blank" rel="noopener noreferrer"
             className="hover:text-white transition-colors">
             ensp-udo.com

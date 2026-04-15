@@ -48,7 +48,7 @@ export default function Navbar() {
               <RiFlaskLine className="w-4 h-4 text-white" />
             </div>
             <div className="hidden sm:block">
-              <p className="text-sm font-semibold text-slate-900 leading-none">Dr TCHUIFON</p>
+              <p className="text-sm font-semibold text-slate-900 leading-none">Pr TCHUIFON</p>
               <p className="text-xs text-slate-500 leading-none mt-0.5">ENSPD Douala</p>
             </div>
           </Link>

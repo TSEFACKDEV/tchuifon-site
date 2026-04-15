@@ -13,24 +13,56 @@ type Props = {
   onRemove?: () => void
 }
 
-export default function FileUpload({ folder, accept, label = 'Fichier', currentUrl, onUpload, onRemove }: Props) {
+export default function FileUpload({
+  folder, accept, label = 'Fichier', currentUrl, onUpload, onRemove
+}: Props) {
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState<string | null>(currentUrl ?? null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const isImage = accept?.includes('image')
 
+  // Extraire le publicId depuis une URL Cloudinary
+  function extractPublicId(url: string): string | null {
+    try {
+      const match = url.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[^.]+)?$/)
+      return match?.[1] ?? null
+    } catch { return null }
+  }
+
   const handleFile = async (file: File) => {
     setUploading(true)
     try {
+      // 1. Uploader le nouveau fichier
       const formData = new FormData()
       formData.append('file', file)
       formData.append('folder', folder)
 
-      const res = await fetch('/api/upload', { method: 'POST', body: formData })
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      })
       const data = await res.json()
 
-      if (!res.ok) { toast.error(data.error ?? 'Erreur upload'); return }
+      if (!res.ok) {
+        toast.error(data.error ?? 'Erreur upload')
+        return
+      }
+
+      // 2. Supprimer l'ancien fichier Cloudinary si présent
+      if (currentUrl) {
+        const oldPublicId = extractPublicId(currentUrl)
+        if (oldPublicId) {
+          const resourceType = (folder === 'publications' || folder === 'cv') ? 'raw' : 'image'
+          await fetch('/api/upload', {
+            method: 'DELETE',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ publicId: oldPublicId, resourceType }),
+          }).catch(() => { /* non bloquant */ })
+        }
+      }
 
       setPreview(data.url)
       onUpload(data.url)
@@ -54,28 +86,46 @@ export default function FileUpload({ folder, accept, label = 'Fichier', currentU
     onRemove?.()
   }
 
+  // Sync preview si currentUrl change de l'extérieur
+  if (currentUrl !== undefined && currentUrl !== preview && !uploading) {
+    setPreview(currentUrl || null)
+  }
+
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-sm font-medium text-slate-700">{label}</label>
+      {label && (
+        <label className="text-sm font-medium text-slate-700">{label}</label>
+      )}
 
       {preview ? (
         <div className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
           {isImage ? (
-            <img src={preview} alt="preview" className="w-12 h-12 rounded-lg object-cover border border-slate-200" />
+            <img
+              src={preview}
+              alt="preview"
+              className="w-12 h-12 rounded-lg object-cover border border-slate-200"
+            />
           ) : (
-            <div className="w-10 h-10 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center shrink-0">
               <RiFileLine className="w-5 h-5 text-red-500" />
             </div>
           )}
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-slate-700 truncate">Fichier uploadé</p>
-            <a href={preview} target="_blank" rel="noopener noreferrer"
-              className="text-xs text-primary-600 hover:underline truncate block">
+            <a
+              href={preview}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-primary-600 hover:underline truncate block"
+            >
               Voir le fichier
             </a>
           </div>
-          <button type="button" onClick={handleRemove}
-            className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors">
+          <button
+            type="button"
+            onClick={handleRemove}
+            className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
+          >
             <RiDeleteBinLine className="w-4 h-4" />
           </button>
         </div>
@@ -107,7 +157,10 @@ export default function FileUpload({ folder, accept, label = 'Fichier', currentU
             type="file"
             accept={accept}
             className="hidden"
-            onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
+            onChange={e => {
+              const f = e.target.files?.[0]
+              if (f) handleFile(f)
+            }}
           />
         </div>
       )}
