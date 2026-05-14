@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     const limit = Math.min(50, Number(searchParams.get('limit') ?? 10))
     const skip = (page - 1) * limit
 
-    const where: any = { isPublished: true }
+    const where: Record<string, unknown> = { isPublished: true }
     if (type) where.type = type
     if (year) where.year = Number(year)
     if (keyword) {
@@ -116,11 +116,11 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json(publication, { status: 201 })
-  } catch (error: any) {
-    if (error.code === 'P2002') {
+  } catch (err: unknown) {
+    if (typeof err === 'object' && err !== null && 'code' in err && (err as { code: string }).code === 'P2002') {
       return NextResponse.json({ error: 'DOI ou slug déjà existant' }, { status: 409 })
     }
-    console.error('[PUBLICATIONS_POST]', error)
+    console.error('[PUBLICATIONS_POST]', err)
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 })
   }
 }

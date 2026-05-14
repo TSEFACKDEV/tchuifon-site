@@ -2,7 +2,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { FormField, inputClass, textareaClass } from '../FormField'
+import { FormField, inputClass } from '../FormField'
 import { Button } from '@/components/ui/Button'
 import FileUpload from '../FileUpload'
 
@@ -22,7 +22,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 
 export default function CollaboratorForm({ initialData, onSubmit, loading }: {
-  initialData?: any; onSubmit: (d: any) => Promise<void>; loading?: boolean
+  initialData?: Partial<FormData>; onSubmit: (d: FormData) => Promise<void>; loading?: boolean
 }) {
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),

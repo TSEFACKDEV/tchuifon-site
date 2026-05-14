@@ -1,0 +1,204 @@
+{
+  "metadata": {
+    "title": "Pr. TCHUIFON Donald Raoul — ENSPD",
+    "description": "Enseignant-Chercheur en Chimie-Physique, Département de Génie des Procédés, ENSPD Douala."
+  },
+  "nav": {
+    "courses": "Cours",
+    "publications": "Publications",
+    "supervisions": "Encadrements",
+    "collaborators": "Collaborateurs",
+    "contact": "Contact",
+    "dashboard": "Tableau de bord",
+    "logout": "Déconnexion"
+  },
+  "home": {
+    "publications": "Publications",
+    "courses": "Cours dispensés",
+    "supervisions": "Encadrements",
+    "collaborators": "Collaborateurs",
+    "hero": {
+      "title": "Dr TCHUIFON Donald Raoul",
+      "subtitle": "Maître de Conférences — Chimie Inorganique",
+      "downloadCV": "Télécharger CV",
+      "learnMore": "En savoir plus"
+    },
+    "about": {
+      "title": "À propos",
+      "institution": "ENSPD Douala",
+      "department": "Département de Génie des Procédés",
+      "office": "PK 17 Douala — Campus ENSPD"
+    },
+    "research": {
+      "title": "Axes de recherche",
+      "wastewater": {
+        "title": "Traitement des eaux usées",
+        "items": [
+          "Mécanismes d'adsorption sur biomasses, MOFs et charbons actifs",
+          "Dégradation des micropolluants par Procédé d'Oxydation Avancée (POA)"
+        ]
+      },
+      "bioenergy": {
+        "title": "Bioénergie",
+        "items": [
+          "Production de biodiesels et bioéthanol",
+          "Analyse thermocinétique des matières lignocellulosiques et MOFs (Pyrolyse)"
+        ]
+      },
+      "applied": {
+        "title": "Recherche appliquée",
+        "items": [
+          "Synthèse et caractérisation des matériaux",
+          "Applications industrielles et transfert technologique au Cameroun"
+        ]
+      }
+    },
+    "specializations": "Spécialisations",
+    "degrees": "Diplômes"
+  },
+  "auth": {
+    "login": {
+      "title": "Espace Administration",
+      "subtitle": "Pr. TCHUIFON — ENSPD Douala",
+      "email": "Email",
+      "password": "Mot de passe",
+      "emailPlaceholder": "votre@email.com",
+      "passwordPlaceholder": "••••••••",
+      "showPassword": "Afficher",
+      "hidePassword": "Masquer",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submit": "Se connecter",
+      "noAccount": "Pas de compte ?",
+      "register": "S'inscrire",
+      "errors": {
+        "invalidEmail": "Email invalide",
+        "passwordRequired": "Mot de passe requis",
+        "invalidCredentials": "Email ou mot de passe incorrect",
+        "networkError": "Erreur réseau"
+      }
+    },
+    "register": {
+      "title": "Créer un compte",
+      "fullName": "Nom complet",
+      "email": "Email",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "submit": "S'inscrire",
+      "haveAccount": "Vous avez déjà un compte ?",
+      "login": "Se connecter",
+      "errors": {
+        "invalidEmail": "Email invalide",
+        "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères",
+        "passwordMismatch": "Les mots de passe ne correspondent pas",
+        "emailExists": "Cet email est déjà utilisé"
+      }
+    },
+    "forgotPassword": {
+      "title": "Réinitialiser le mot de passe",
+      "email": "Email",
+      "submit": "Envoyer le lien",
+      "emailSent": "Un lien de réinitialisation a été envoyé à votre email",
+      "backToLogin": "Retour à la connexion"
+    },
+    "resetPassword": {
+      "title": "Créer un nouveau mot de passe",
+      "password": "Nouveau mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "submit": "Réinitialiser",
+      "success": "Mot de passe réinitialisé avec succès"
+    }
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "overview": "Aperçu",
+    "courses": "Cours",
+    "publications": "Publications",
+    "supervisions": "Encadrements",
+    "collaborators": "Collaborateurs",
+    "users": "Utilisateurs",
+    "messages": "Messages",
+    "profile": "Profil",
+    "add": "Ajouter",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "loading": "Chargement...",
+    "noData": "Aucune donnée",
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer cet élément ?",
+    "deleteSuccess": "Élément supprimé avec succès",
+    "deleteError": "Erreur lors de la suppression",
+    "saveSuccess": "Élément enregistré avec succès",
+    "saveError": "Erreur lors de l'enregistrement",
+    "required": "Ce champ est obligatoire"
+  },
+  "forms": {
+    "title": "Titre",
+    "description": "Description",
+    "content": "Contenu",
+    "year": "Année",
+    "date": "Date",
+    "file": "Fichier",
+    "image": "Image",
+    "submit": "Soumettre",
+    "cancel": "Annuler",
+    "loading": "Chargement...",
+    "upload": "Télécharger",
+    "delete": "Supprimer",
+    "selectFile": "Sélectionner un fichier",
+    "dragDrop": "Glisser-déposer ou cliquer pour sélectionner",
+    "uploadSuccess": "Fichier uploadé ✓",
+    "uploadError": "Erreur lors de l'upload"
+  },
+  "contact": {
+    "pageTitle": "Contact",
+    "pageSubtitle": "Pour toute demande de collaboration ou d'information",
+    "fullName": "Nom complet",
+    "fullNamePlaceholder": "Jean Dupont",
+    "email": "Email",
+    "emailPlaceholder": "jean@exemple.com",
+    "subject": "Sujet",
+    "subjectPlaceholder": "Demande de collaboration...",
+    "message": "Message",
+    "messagePlaceholder": "Décrivez votre demande...",
+    "submit": "Envoyer le message",
+    "sending": "Envoi en cours...",
+    "successTitle": "Message envoyé !",
+    "successMessage": "Le Pr. Tchuifon vous répondra dans les meilleurs délais.",
+    "sendAnother": "Envoyer un autre message",
+    "emailLabel": "Email",
+    "phoneLabel": "Téléphone",
+    "officeLabel": "Bureau",
+    "errors": {
+      "nameRequired": "Nom requis",
+      "invalidEmail": "Email invalide",
+      "subjectRequired": "Sujet requis",
+      "messageTooShort": "Message trop court (min. 10 caractères)"
+    }
+  },
+  "footer": {
+    "identity": "Identité",
+    "professor": "Pr TCHUIFON Donald Raoul",
+    "researcher": "Enseignant-Chercheur",
+    "department": "Département de Génie des Procédés",
+    "institution": "École Nationale Supérieure Polytechnique de Douala (ENSPD)",
+    "navigation": "Navigation",
+    "contact": "Contact",
+    "copyright": "© {year} Pr TCHUIFON Donald Raoul. Tous droits réservés.",
+    "website": "ensp-udo.com"
+  },
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "logout": "Déconnexion",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "language": "Langue"
+  }
+}

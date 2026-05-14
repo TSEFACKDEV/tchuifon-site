@@ -1,0 +1,21 @@
+'use client'
+import { useTranslations, useLocale } from 'next-intl'
+
+export const dynamic = 'force-dynamic'
+
+export default function PublicationsPage() {
+  const t = useTranslations('home')
+  const locale = useLocale()
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+      <div className="mb-10">
+        <h1 className="text-3xl font-bold text-slate-900 mb-2">{t('publications')}</h1>
+        <p className="text-slate-500">{locale === 'fr' ? 'Liste des publications' : 'List of publications'}</p>
+      </div>
+      <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
+        <p className="text-slate-500">{locale === 'fr' ? 'Aucune publication disponible' : 'No publications available'}</p>
+      </div>
+    </div>
+  )
+}

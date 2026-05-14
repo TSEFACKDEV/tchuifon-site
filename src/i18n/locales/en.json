@@ -1,0 +1,204 @@
+{
+  "metadata": {
+    "title": "Pr. TCHUIFON Donald Raoul — ENSPD",
+    "description": "Lecturer and Researcher in Physical Chemistry, Department of Process Engineering, ENSPD Douala."
+  },
+  "nav": {
+    "courses": "Courses",
+    "publications": "Publications",
+    "supervisions": "Supervisions",
+    "collaborators": "Collaborators",
+    "contact": "Contact",
+    "dashboard": "Dashboard",
+    "logout": "Logout"
+  },
+  "home": {
+    "publications": "Publications",
+    "courses": "Courses Taught",
+    "supervisions": "Supervisions",
+    "collaborators": "Collaborators",
+    "hero": {
+      "title": "Dr TCHUIFON Donald Raoul",
+      "subtitle": "Senior Lecturer — Inorganic Chemistry",
+      "downloadCV": "Download CV",
+      "learnMore": "Learn More"
+    },
+    "about": {
+      "title": "About",
+      "institution": "ENSPD Douala",
+      "department": "Department of Process Engineering",
+      "office": "PK 17 Douala — ENSPD Campus"
+    },
+    "research": {
+      "title": "Research Axes",
+      "wastewater": {
+        "title": "Wastewater Treatment",
+        "items": [
+          "Adsorption mechanisms on biomasses, MOFs and activated carbons",
+          "Degradation of micropollutants by Advanced Oxidation Process (AOP)"
+        ]
+      },
+      "bioenergy": {
+        "title": "Bioenergy",
+        "items": [
+          "Production of biodiesels and bioethanol",
+          "Thermochemical analysis of lignocellulosic materials and MOFs (Pyrolysis)"
+        ]
+      },
+      "applied": {
+        "title": "Applied Research",
+        "items": [
+          "Synthesis and characterization of materials",
+          "Industrial applications and technology transfer in Cameroon"
+        ]
+      }
+    },
+    "specializations": "Specializations",
+    "degrees": "Degrees"
+  },
+  "auth": {
+    "login": {
+      "title": "Administration Area",
+      "subtitle": "Pr. TCHUIFON — ENSPD Douala",
+      "email": "Email",
+      "password": "Password",
+      "emailPlaceholder": "your@email.com",
+      "passwordPlaceholder": "••••••••",
+      "showPassword": "Show",
+      "hidePassword": "Hide",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign In",
+      "noAccount": "Don't have an account?",
+      "register": "Sign Up",
+      "errors": {
+        "invalidEmail": "Invalid email",
+        "passwordRequired": "Password is required",
+        "invalidCredentials": "Invalid email or password",
+        "networkError": "Network error"
+      }
+    },
+    "register": {
+      "title": "Create Account",
+      "fullName": "Full Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Sign Up",
+      "haveAccount": "Already have an account?",
+      "login": "Sign In",
+      "errors": {
+        "invalidEmail": "Invalid email",
+        "passwordTooShort": "Password must be at least 6 characters",
+        "passwordMismatch": "Passwords do not match",
+        "emailExists": "This email is already in use"
+      }
+    },
+    "forgotPassword": {
+      "title": "Reset Password",
+      "email": "Email",
+      "submit": "Send Link",
+      "emailSent": "A reset link has been sent to your email",
+      "backToLogin": "Back to Login"
+    },
+    "resetPassword": {
+      "title": "Create New Password",
+      "password": "New Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Reset",
+      "success": "Password reset successfully"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "overview": "Overview",
+    "courses": "Courses",
+    "publications": "Publications",
+    "supervisions": "Supervisions",
+    "collaborators": "Collaborators",
+    "users": "Users",
+    "messages": "Messages",
+    "profile": "Profile",
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "loading": "Loading...",
+    "noData": "No data",
+    "confirmDelete": "Are you sure you want to delete this item?",
+    "deleteSuccess": "Item deleted successfully",
+    "deleteError": "Error deleting item",
+    "saveSuccess": "Item saved successfully",
+    "saveError": "Error saving item",
+    "required": "This field is required"
+  },
+  "forms": {
+    "title": "Title",
+    "description": "Description",
+    "content": "Content",
+    "year": "Year",
+    "date": "Date",
+    "file": "File",
+    "image": "Image",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "upload": "Upload",
+    "delete": "Delete",
+    "selectFile": "Select a file",
+    "dragDrop": "Drag and drop or click to select",
+    "uploadSuccess": "File uploaded ✓",
+    "uploadError": "Error uploading file"
+  },
+  "contact": {
+    "pageTitle": "Contact",
+    "pageSubtitle": "For any collaboration request or information",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "John Doe",
+    "email": "Email",
+    "emailPlaceholder": "john@example.com",
+    "subject": "Subject",
+    "subjectPlaceholder": "Collaboration request...",
+    "message": "Message",
+    "messagePlaceholder": "Describe your request...",
+    "submit": "Send Message",
+    "sending": "Sending...",
+    "successTitle": "Message Sent!",
+    "successMessage": "Pr. Tchuifon will reply to you as soon as possible.",
+    "sendAnother": "Send another message",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "officeLabel": "Office",
+    "errors": {
+      "nameRequired": "Name is required",
+      "invalidEmail": "Invalid email",
+      "subjectRequired": "Subject is required",
+      "messageTooShort": "Message too short (min. 10 characters)"
+    }
+  },
+  "footer": {
+    "identity": "Identity",
+    "professor": "Prof TCHUIFON Donald Raoul",
+    "researcher": "Lecturer and Researcher",
+    "department": "Department of Process Engineering",
+    "institution": "National Advanced School of Engineering of Douala (ENSPD)",
+    "navigation": "Navigation",
+    "contact": "Contact",
+    "copyright": "© {year} Prof TCHUIFON Donald Raoul. All rights reserved.",
+    "website": "ensp-udo.com"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "logout": "Logout",
+    "profile": "Profile",
+    "settings": "Settings",
+    "language": "Language"
+  }
+}

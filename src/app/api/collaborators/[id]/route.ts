@@ -31,7 +31,7 @@ export async function GET(
     })
     if (!collaborator) return NextResponse.json({ error: 'Collaborateur introuvable' }, { status: 404 })
     return NextResponse.json(collaborator)
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 })
   }
 }
@@ -51,8 +51,9 @@ export async function PUT(
 
     const collaborator = await prisma.collaborator.update({ where: { id }, data: parsed.data })
     return NextResponse.json(collaborator)
-  } catch (error: any) {
-    if (error.code === 'P2025') return NextResponse.json({ error: 'Collaborateur introuvable' }, { status: 404 })
+  } catch (err: unknown) {
+    if (typeof err === 'object' && err !== null && 'code' in err && (err as { code: string }).code === 'P2025')
+      return NextResponse.json({ error: 'Collaborateur introuvable' }, { status: 404 })
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 })
   }
 }
@@ -68,8 +69,9 @@ export async function DELETE(
     const { id } = await params
     await prisma.collaborator.delete({ where: { id } })
     return NextResponse.json({ success: true })
-  } catch (error: any) {
-    if (error.code === 'P2025') return NextResponse.json({ error: 'Collaborateur introuvable' }, { status: 404 })
+  } catch (err: unknown) {
+    if (typeof err === 'object' && err !== null && 'code' in err && (err as { code: string }).code === 'P2025')
+      return NextResponse.json({ error: 'Collaborateur introuvable' }, { status: 404 })
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 })
   }
 }

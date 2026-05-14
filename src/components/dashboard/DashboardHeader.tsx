@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { RiExternalLinkLine, RiBellLine } from 'react-icons/ri'
+import { RiExternalLinkLine } from 'react-icons/ri'
 
 type Props = {
   title: string

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { clsx } from 'clsx'
-import { useAuthStore } from '@/store/authStore'
+import { useAuthStore, type User } from '@/store/authStore'
 import Image from 'next/image'
 import {
   RiDashboardLine, RiArticleLine, RiBookOpenLine,
@@ -24,20 +24,20 @@ const navItems = [
   { href: '/dashboard/profile',       label: 'Mon profil',      icon: RiSettings3Line },
 ]
 
-export default function Sidebar() {
-  const pathname = usePathname()
-  const { user, logout } = useAuthStore()
-  const [collapsed, setCollapsed] = useState(false)
-  const [mobileOpen, setMobileOpen] = useState(false)
+type SidebarContentProps = {
+  collapsed: boolean
+  filteredItems: typeof navItems
+  user: User | null
+  logout: () => void
+  isActive: (href: string, exact?: boolean) => boolean
+  onNavClick: () => void
+  onToggleCollapse: () => void
+}
 
-  const isActive = (href: string, exact?: boolean) =>
-    exact ? pathname === href : pathname.startsWith(href)
-
-  const filteredItems = navItems.filter(item =>
-    !item.adminOnly || user?.role === 'ADMIN'
-  )
-
-  const SidebarContent = () => (
+function SidebarContent({
+  collapsed, filteredItems, user, logout, isActive, onNavClick, onToggleCollapse,
+}: SidebarContentProps) {
+  return (
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className={clsx(
@@ -49,7 +49,7 @@ export default function Sidebar() {
         </div>
         {!collapsed && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <p className="text-sm font-semibold text-white leading-none">Dr TCHUIFON</p>
+            <p className="text-sm font-semibold text-white leading-none">Pr. TCHUIFON</p>
             <p className="text-xs text-slate-400 leading-none mt-0.5">Administration</p>
           </motion.div>
         )}
@@ -61,7 +61,7 @@ export default function Sidebar() {
           const active = isActive(href, exact)
           return (
             <Link key={href} href={href}
-              onClick={() => setMobileOpen(false)}
+              onClick={onNavClick}
               className={clsx(
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 group relative',
                 active
@@ -86,7 +86,6 @@ export default function Sidebar() {
 
       {/* User + Logout */}
       <div className="px-3 py-4 border-t border-slate-800 space-y-2">
-        {/* Profil user */}
         <div className={clsx(
           'flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800',
           collapsed && 'justify-center px-2'
@@ -110,7 +109,6 @@ export default function Sidebar() {
           )}
         </div>
 
-        {/* Logout */}
         <button onClick={logout}
           className={clsx(
             'flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-slate-400 hover:bg-red-900/30 hover:text-red-400 transition-all',
@@ -123,9 +121,9 @@ export default function Sidebar() {
         </button>
       </div>
 
-      {/* Toggle collapse (desktop) */}
+      {/* Toggle collapse (desktop only) */}
       <button
-        onClick={() => setCollapsed(!collapsed)}
+        onClick={onToggleCollapse}
         className="hidden lg:flex items-center justify-center w-full py-3 border-t border-slate-800 text-slate-500 hover:text-white hover:bg-slate-800 transition-colors"
       >
         {collapsed
@@ -135,6 +133,30 @@ export default function Sidebar() {
       </button>
     </div>
   )
+}
+
+export default function Sidebar() {
+  const pathname = usePathname()
+  const { user, logout } = useAuthStore()
+  const [collapsed, setCollapsed] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  const isActive = (href: string, exact?: boolean) =>
+    exact ? pathname === href : pathname.startsWith(href)
+
+  const filteredItems = navItems.filter(item =>
+    !item.adminOnly || user?.role === 'ADMIN'
+  )
+
+  const sharedProps: SidebarContentProps = {
+    collapsed,
+    filteredItems,
+    user,
+    logout,
+    isActive,
+    onNavClick: () => setMobileOpen(false),
+    onToggleCollapse: () => setCollapsed(c => !c),
+  }
 
   return (
     <>
@@ -144,7 +166,7 @@ export default function Sidebar() {
         transition={{ duration: 0.25, ease: 'easeInOut' }}
         className="hidden lg:flex flex-col bg-slate-900 h-screen sticky top-0 shrink-0 overflow-hidden"
       >
-        <SidebarContent />
+        <SidebarContent {...sharedProps} />
       </motion.aside>
 
       {/* Mobile toggle button */}
@@ -169,7 +191,7 @@ export default function Sidebar() {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="lg:hidden fixed left-0 top-0 h-full w-64 bg-slate-900 z-50 flex flex-col"
             >
-              <SidebarContent />
+              <SidebarContent {...sharedProps} />
             </motion.aside>
           </>
         )}

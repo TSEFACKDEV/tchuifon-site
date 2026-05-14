@@ -13,10 +13,9 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Vérifier la signature JWT
-    let payload: { userId: string }
+    // Vérifier la signature JWT (throws si invalide ou expiré)
     try {
-      payload = verifyRefreshToken(refreshToken)
+      verifyRefreshToken(refreshToken)
     } catch {
       return NextResponse.json(
         { error: 'Refresh token invalide ou expiré' },

@@ -19,7 +19,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 
 export default function SupervisionForm({ initialData, onSubmit, loading }: {
-  initialData?: any; onSubmit: (d: any) => Promise<void>; loading?: boolean
+  initialData?: Partial<FormData>; onSubmit: (d: FormData) => Promise<void>; loading?: boolean
 }) {
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),

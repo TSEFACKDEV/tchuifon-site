@@ -25,7 +25,7 @@ export async function GET(
     const course = await prisma.course.findUnique({ where: { id } })
     if (!course) return NextResponse.json({ error: 'Cours introuvable' }, { status: 404 })
     return NextResponse.json(course)
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 })
   }
 }
@@ -46,8 +46,9 @@ export async function PUT(
     }
     const course = await prisma.course.update({ where: { id }, data: parsed.data })
     return NextResponse.json(course)
-  } catch (error: any) {
-    if (error.code === 'P2025') return NextResponse.json({ error: 'Cours introuvable' }, { status: 404 })
+  } catch (err: unknown) {
+    if (typeof err === 'object' && err !== null && 'code' in err && (err as { code: string }).code === 'P2025')
+      return NextResponse.json({ error: 'Cours introuvable' }, { status: 404 })
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 })
   }
 }
@@ -63,8 +64,9 @@ export async function DELETE(
     const { id } = await params
     await prisma.course.delete({ where: { id } })
     return NextResponse.json({ success: true })
-  } catch (error: any) {
-    if (error.code === 'P2025') return NextResponse.json({ error: 'Cours introuvable' }, { status: 404 })
+  } catch (err: unknown) {
+    if (typeof err === 'object' && err !== null && 'code' in err && (err as { code: string }).code === 'P2025')
+      return NextResponse.json({ error: 'Cours introuvable' }, { status: 404 })
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 })
   }
 }

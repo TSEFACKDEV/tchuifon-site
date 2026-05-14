@@ -20,16 +20,17 @@ const schema = z.object({
 })
 
 type FormData = z.infer<typeof schema>
+type CourseApiInput = Omit<Partial<FormData>, 'objectives'> & { objectives?: string[] }
 
 export default function CourseForm({ initialData, onSubmit, loading }: {
-  initialData?: any; onSubmit: (d: any) => Promise<void>; loading?: boolean
+  initialData?: CourseApiInput; onSubmit: (d: Record<string, unknown>) => Promise<void>; loading?: boolean
 }) {
   const { register, handleSubmit, control, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {                                        // ← valeurs par défaut ici
       isActive: true,
-      objectives: initialData?.objectives?.map((v: string) => ({ value: v })) ?? [],
       ...initialData,
+      objectives: initialData?.objectives?.map((v) => ({ value: v })) ?? [],
     },
   })
 

@@ -59,9 +59,10 @@ export async function PUT(req: NextRequest) {
     })
 
     return NextResponse.json(profile)
-  } catch (error: any) {
-    if (error.code === 'P2025') return NextResponse.json({ error: 'Profil introuvable' }, { status: 404 })
-    console.error('[PROFILE_PUT]', error)
+  } catch (err: unknown) {
+    if (typeof err === 'object' && err !== null && 'code' in err && (err as { code: string }).code === 'P2025')
+      return NextResponse.json({ error: 'Profil introuvable' }, { status: 404 })
+    console.error('[PROFILE_PUT]', err)
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 })
   }
 }

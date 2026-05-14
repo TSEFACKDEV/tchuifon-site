@@ -97,11 +97,11 @@ export async function PUT(
     })
 
     return NextResponse.json(publication)
-  } catch (error: any) {
-    if (error.code === 'P2025') {
+  } catch (err: unknown) {
+    if (typeof err === 'object' && err !== null && 'code' in err && (err as { code: string }).code === 'P2025') {
       return NextResponse.json({ error: 'Publication introuvable' }, { status: 404 })
     }
-    console.error('[PUBLICATION_PUT]', error)
+    console.error('[PUBLICATION_PUT]', err)
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 })
   }
 }
@@ -118,11 +118,11 @@ export async function DELETE(
     const { id } = await params
     await prisma.publication.delete({ where: { id } })
     return NextResponse.json({ success: true })
-  } catch (error: any) {
-    if (error.code === 'P2025') {
+  } catch (err: unknown) {
+    if (typeof err === 'object' && err !== null && 'code' in err && (err as { code: string }).code === 'P2025') {
       return NextResponse.json({ error: 'Publication introuvable' }, { status: 404 })
     }
-    console.error('[PUBLICATION_DELETE]', error)
+    console.error('[PUBLICATION_DELETE]', err)
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 })
   }
 }

@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const country = searchParams.get('country')
 
-    const where: any = {}
+    const where: Record<string, unknown> = {}
     if (country) where.country = { contains: country, mode: 'insensitive' }
 
     const collaborators = await prisma.collaborator.findMany({

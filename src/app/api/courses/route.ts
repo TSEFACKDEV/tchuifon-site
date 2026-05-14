@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     const level = searchParams.get('level')
     const active = searchParams.get('active')
 
-    const where: any = {}
+    const where: Record<string, unknown> = {}
     if (level) where.level = level
     if (active !== null) where.isActive = active === 'true'
 

@@ -160,10 +160,10 @@ async function main() {
     where: { userId: admin.id },
   });
 
-  console.log('\n📊 Résumé du seeding:');
-  console.log(`👤 Administrateur: ${admin.profile?.fullName || admin.email}`);
-  console.log(`📚 Total publications: ${publicationCount}`);
-  console.log('\n🎉 Seeding terminé avec succès!');
+  console.log('\n Résumé du seeding:');
+  console.log(` Administrateur: ${admin.profile?.fullName || admin.email}`);
+  console.log(` Total publications: ${publicationCount}`);
+  console.log('\n Seeding terminé avec succès!');
 }
 
 main()

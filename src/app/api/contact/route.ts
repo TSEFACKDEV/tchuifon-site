@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireAuth } from '@/lib/auth'
 import { transporter } from '@/lib/mail'
 import { z } from 'zod'
 
@@ -59,7 +60,6 @@ export async function POST(req: NextRequest) {
 
 // GET /api/contact — ADMIN uniquement (liste des messages)
 export async function GET(req: NextRequest) {
-  const { requireAuth } = await import('@/lib/auth')
   const auth = requireAuth(req, ['ADMIN'])
   if (auth instanceof NextResponse) return auth
 
@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
       orderBy: { sentAt: 'desc' },
     })
     return NextResponse.json({ data: messages })
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 })
   }
 }

@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     const level = searchParams.get('level')
     const status = searchParams.get('status')
 
-    const where: any = {}
+    const where: Record<string, unknown> = {}
     if (level) where.level = level
     if (status) where.status = status
 

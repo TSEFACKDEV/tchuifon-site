@@ -26,10 +26,14 @@ const schema = z.object({
 })
 
 type FormData = z.infer<typeof schema>
+type PublicationApiInput = Omit<Partial<FormData>, 'authors' | 'keywords'> & {
+  authors?: string[]
+  keywords?: string[]
+}
 
 type Props = {
-  initialData?: any
-  onSubmit: (data: any) => Promise<void>
+  initialData?: PublicationApiInput
+  onSubmit: (data: Record<string, unknown>) => Promise<void>
   loading?: boolean
 }
 
@@ -40,9 +44,9 @@ export default function PublicationForm({ initialData, onSubmit, loading }: Prop
       defaultValues: {                                         // ← valeurs par défaut ici
         type: 'ARTICLE',
         isPublished: true,
-        keywords: [],
-        authors: initialData?.authors?.map((v: string) => ({ value: v })) ?? [{ value: '' }],
         ...initialData,
+        authors: initialData?.authors?.map((v) => ({ value: v })) ?? [{ value: '' }],
+        keywords: initialData?.keywords?.map((v) => ({ value: v })) ?? [],
       },
     })
 

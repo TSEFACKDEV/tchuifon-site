@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import { clsx } from 'clsx'
 import { RiUploadCloud2Line, RiFileLine, RiDeleteBinLine, RiLoader4Line } from 'react-icons/ri'
 import { toast } from '@/components/ui/Toast'
+import Image from 'next/image'
 
 type Props = {
   folder: 'profiles' | 'publications' | 'courses' | 'cv' | 'collaborators'
@@ -100,9 +101,12 @@ export default function FileUpload({
       {preview ? (
         <div className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
           {isImage ? (
-            <img
+            <Image
               src={preview}
               alt="preview"
+              width={48}
+              height={48}
+              unoptimized
               className="w-12 h-12 rounded-lg object-cover border border-slate-200"
             />
           ) : (

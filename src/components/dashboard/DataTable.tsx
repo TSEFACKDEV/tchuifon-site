@@ -59,7 +59,7 @@ export default function DataTable<T>({ columns, data, loading, emptyMessage = 'A
             >
               {columns.map(col => (
                 <td key={col.key} className="px-4 py-3.5 text-slate-700">
-                  {col.render ? col.render(row) : String((row as any)[col.key] ?? '—')}
+                  {col.render ? col.render(row) : String((row as Record<string, unknown>)[col.key] ?? '—')}
                 </td>
               ))}
             </motion.tr>
