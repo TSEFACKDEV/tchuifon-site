@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { useLocale } from 'next-intl'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   RiArticleLine, RiBookOpenLine, RiGroupLine, RiAwardLine,
   RiArrowRightLine, RiExternalLinkLine, RiMailLine,
@@ -13,6 +13,20 @@ import {
 import { useEffect, useState } from 'react'
 
 export const dynamic = 'force-dynamic'
+
+const SLIDES = [
+  '/images/slides/1.jpeg',
+  '/images/slides/2.jpeg',
+  '/images/slides/3.jpeg',
+  '/images/slides/4.jpeg',
+  '/images/slides/5.jpeg',
+  '/images/slides/6.jpeg',
+  '/images/slides/7.jpeg',
+  '/images/slides/8.jpeg',
+  '/images/slides/9.jpeg',
+]
+
+const KB_CLASSES = ['kenburns-1', 'kenburns-2', 'kenburns-3'] as const
 
 type Profile = {
   fullName?: string
@@ -33,6 +47,7 @@ type Profile = {
 export default function HomePage() {
   const t = useTranslations('home')
   const locale = useLocale()
+  const [currentSlide, setCurrentSlide] = useState(0)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [stats, setStats] = useState({
     publications: 0,
@@ -40,6 +55,13 @@ export default function HomePage() {
     supervisions: 0,
     collaborators: 0,
   })
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide(prev => (prev + 1) % SLIDES.length)
+    }, 6000)
+    return () => clearInterval(interval)
+  }, [])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -105,13 +127,40 @@ export default function HomePage() {
   return (
     <div>
       {/* ── HERO ─────────────────────────────────────────────── */}
-      <section className="bg-gradient-to-br from-slate-900 via-primary-900 to-primary-800 text-white relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-primary-600/10" />
-          <div className="absolute -bottom-10 -left-10 w-64 h-64 rounded-full bg-primary-500/10" />
+      <section className="text-white relative overflow-hidden">
+        {/* Background slider */}
+        <div className="absolute inset-0 z-0">
+          <AnimatePresence initial={false}>
+            <motion.div
+              key={currentSlide}
+              className="absolute inset-0 overflow-hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.5, ease: 'easeInOut' }}
+            >
+              <Image
+                src={SLIDES[currentSlide]}
+                alt=""
+                fill
+                priority={currentSlide === 0}
+                className={`object-cover ${KB_CLASSES[currentSlide % KB_CLASSES.length]}`}
+                sizes="100vw"
+              />
+            </motion.div>
+          </AnimatePresence>
+          {/* Multi-layer overlay for readability */}
+          <div className="absolute inset-0 bg-linear-to-br from-slate-900/85 via-primary-900/80 to-primary-800/75" />
+          <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-28 relative">
+        {/* Decorative blobs */}
+        <div className="absolute inset-0 z-1 pointer-events-none overflow-hidden">
+          <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-primary-600/10 blur-3xl" />
+          <div className="absolute -bottom-10 -left-10 w-64 h-64 rounded-full bg-primary-500/10 blur-2xl" />
+        </div>
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-28 relative z-2">
           <div className="grid md:grid-cols-5 gap-12 items-center">
             <div className="md:col-span-3">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-blue-200 text-xs font-medium mb-6 border border-white/15">
@@ -209,6 +258,37 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+
+        {/* Slide indicators */}
+        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-2 flex items-center gap-2">
+          {SLIDES.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentSlide(i)}
+              aria-label={`Slide ${i + 1}`}
+              className="focus:outline-none group"
+            >
+              <motion.span
+                className="block rounded-full bg-white/50 transition-colors"
+                animate={{
+                  width: i === currentSlide ? 28 : 8,
+                  height: 8,
+                  backgroundColor: i === currentSlide ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.4)',
+                }}
+                transition={{ duration: 0.4, ease: 'easeInOut' }}
+              />
+            </button>
+          ))}
+        </div>
+
+        {/* Progress bar */}
+        <motion.div
+          key={`progress-${currentSlide}`}
+          className="absolute bottom-0 left-0 h-0.5 bg-white/60 z-2"
+          initial={{ width: '0%' }}
+          animate={{ width: '100%' }}
+          transition={{ duration: 6, ease: 'linear' }}
+        />
       </section>
 
       {/* ── STATS ────────────────────────────────────────────── */}
