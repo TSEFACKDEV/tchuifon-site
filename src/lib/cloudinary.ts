@@ -52,16 +52,3 @@ export async function deleteFromCloudinary(
 ) {
   await cloudinary.uploader.destroy(publicId, { resource_type: resourceType })
 }
-
-// Générer une URL transformée (resize, crop...)
-export function getOptimizedUrl(
-  publicId: string,
-  options?: { width?: number; height?: number; crop?: string }
-) {
-  return cloudinary.url(publicId, {
-    secure: true,
-    quality: 'auto',
-    fetch_format: 'auto',
-    ...options,
-  })
-}

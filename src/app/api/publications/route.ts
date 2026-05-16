@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { requireAuth } from '@/lib/auth'
+import { requireAuth, getAuthUser } from '@/lib/auth'
 import { z } from 'zod'
 import slugify from 'slugify'
 
@@ -26,18 +26,23 @@ const publicationSchema = z.object({
   collaboratorIds: z.array(z.string()).default([]),
 })
 
-// GET /api/publications — liste publique avec filtres
+// GET /api/publications — liste avec filtres (admin voit tout, public voit published)
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const type = searchParams.get('type')
     const year = searchParams.get('year')
     const keyword = searchParams.get('keyword')
+    const all = searchParams.get('all') === 'true'
     const page = Math.max(1, Number(searchParams.get('page') ?? 1))
-    const limit = Math.min(50, Number(searchParams.get('limit') ?? 10))
+    const limit = Math.min(100, Number(searchParams.get('limit') ?? 10))
     const skip = (page - 1) * limit
 
-    const where: Record<string, unknown> = { isPublished: true }
+    // Pour 'all=true', vérifier que c'est un admin authentifié
+    const authUser = all ? getAuthUser(req) : null
+    const isAdmin = all && authUser?.role === 'ADMIN'
+
+    const where: Record<string, unknown> = isAdmin ? {} : { isPublished: true }
     if (type) where.type = type
     if (year) where.year = Number(year)
     if (keyword) {

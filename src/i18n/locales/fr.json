@@ -68,6 +68,7 @@
       "hidePassword": "Masquer",
       "forgotPassword": "Mot de passe oublié ?",
       "submit": "Se connecter",
+      "submitting": "Connexion en cours...",
       "noAccount": "Pas de compte ?",
       "register": "S'inscrire",
       "errors": {
@@ -95,16 +96,25 @@
     },
     "forgotPassword": {
       "title": "Réinitialiser le mot de passe",
+      "description": "Entrez votre email pour recevoir un lien de réinitialisation.",
       "email": "Email",
+      "emailPlaceholder": "votre@email.com",
       "submit": "Envoyer le lien",
+      "sending": "Envoi en cours...",
+      "back": "Retour",
+      "emailSentTitle": "Email envoyé",
       "emailSent": "Un lien de réinitialisation a été envoyé à votre email",
       "backToLogin": "Retour à la connexion"
     },
     "resetPassword": {
       "title": "Créer un nouveau mot de passe",
+      "description": "Créez un nouveau mot de passe sécurisé.",
       "password": "Nouveau mot de passe",
       "confirmPassword": "Confirmer le mot de passe",
       "submit": "Réinitialiser",
+      "processing": "Traitement en cours...",
+      "back": "Retour",
+      "successTitle": "Succès !",
       "success": "Mot de passe réinitialisé avec succès"
     }
   },
@@ -169,6 +179,7 @@
     "emailLabel": "Email",
     "phoneLabel": "Téléphone",
     "officeLabel": "Bureau",
+    "officeAddress": "PK 17 Douala, Campus ENSPD",
     "errors": {
       "nameRequired": "Nom requis",
       "invalidEmail": "Email invalide",

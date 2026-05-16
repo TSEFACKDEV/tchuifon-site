@@ -10,6 +10,14 @@ const contactSchema = z.object({
   subject: z.string().min(3, 'Sujet requis'),
   message: z.string().min(10, 'Message trop court'),
 })
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,33 +30,40 @@ export async function POST(req: NextRequest) {
 
     const { name, email, subject, message } = parsed.data
 
-    // Sauvegarder en base
+    // Sauvegarder en base (opération critique)
     await prisma.contactMessage.create({
       data: { name, email, subject, message },
     })
 
-    // Notifier le Dr Tchuifon
-    await transporter.sendMail({
+    // Notifier par email (opération secondaire — ne bloque pas la réponse)
+    const safeName = escapeHtml(name)
+    const safeEmail = escapeHtml(email)
+    const safeSubject = escapeHtml(subject)
+    const safeMessage = escapeHtml(message)
+
+    transporter.sendMail({
       from: `"Site Dr Tchuifon" <${process.env.SMTP_USER}>`,
-      to: process.env.SMTP_USER,
+      to: process.env.SMTP_TO ?? process.env.SMTP_USER,
       replyTo: email,
       subject: `[Contact] ${subject}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 32px;">
           <h2 style="color: #1d4ed8; margin-top:0;">Nouveau message de contact</h2>
           <table style="width:100%;border-collapse:collapse;">
-            <tr><td style="padding:8px;color:#64748b;width:100px;">Nom</td><td style="padding:8px;font-weight:bold;">${name}</td></tr>
-            <tr style="background:#f8fafc;"><td style="padding:8px;color:#64748b;">Email</td><td style="padding:8px;">${email}</td></tr>
-            <tr><td style="padding:8px;color:#64748b;">Sujet</td><td style="padding:8px;">${subject}</td></tr>
+            <tr><td style="padding:8px;color:#64748b;width:100px;">Nom</td><td style="padding:8px;font-weight:bold;">${safeName}</td></tr>
+            <tr style="background:#f8fafc;"><td style="padding:8px;color:#64748b;">Email</td><td style="padding:8px;">${safeEmail}</td></tr>
+            <tr><td style="padding:8px;color:#64748b;">Sujet</td><td style="padding:8px;">${safeSubject}</td></tr>
           </table>
           <div style="margin-top:16px;padding:16px;background:#f8fafc;border-radius:8px;border-left:4px solid #2563eb;">
-            <p style="margin:0;white-space:pre-wrap;">${message}</p>
+            <p style="margin:0;white-space:pre-wrap;">${safeMessage}</p>
           </div>
           <p style="color:#94a3b8;font-size:13px;margin-top:16px;">
-            Répondez directement à cet email pour contacter ${name}.
+            R&eacute;pondez directement &agrave; cet email pour contacter ${safeName}.
           </p>
         </div>
       `,
+    }).catch((err) => {
+      console.error('[CONTACT_EMAIL]', err)
     })
 
     return NextResponse.json({ success: true, message: 'Message envoyé avec succès.' })

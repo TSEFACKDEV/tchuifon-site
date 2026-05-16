@@ -68,6 +68,7 @@
       "hidePassword": "Hide",
       "forgotPassword": "Forgot password?",
       "submit": "Sign In",
+      "submitting": "Signing in...",
       "noAccount": "Don't have an account?",
       "register": "Sign Up",
       "errors": {
@@ -95,16 +96,25 @@
     },
     "forgotPassword": {
       "title": "Reset Password",
+      "description": "Enter your email to receive a reset link.",
       "email": "Email",
+      "emailPlaceholder": "your@email.com",
       "submit": "Send Link",
+      "sending": "Sending...",
+      "back": "Back",
+      "emailSentTitle": "Email Sent",
       "emailSent": "A reset link has been sent to your email",
       "backToLogin": "Back to Login"
     },
     "resetPassword": {
       "title": "Create New Password",
+      "description": "Create a new secure password.",
       "password": "New Password",
       "confirmPassword": "Confirm Password",
       "submit": "Reset",
+      "processing": "Processing...",
+      "back": "Back",
+      "successTitle": "Success!",
       "success": "Password reset successfully"
     }
   },
@@ -169,6 +179,7 @@
     "emailLabel": "Email",
     "phoneLabel": "Phone",
     "officeLabel": "Office",
+    "officeAddress": "PK 17 Douala, ENSPD Campus",
     "errors": {
       "nameRequired": "Name is required",
       "invalidEmail": "Invalid email",

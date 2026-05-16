@@ -1,4 +1,5 @@
 import { getRequestConfig } from 'next-intl/server'
+import { notFound } from 'next/navigation'
 import { routing } from './routing'
 
 export default getRequestConfig(async ({ locale }) => {
@@ -7,7 +8,7 @@ export default getRequestConfig(async ({ locale }) => {
 
   // Valider que la locale est supportée
   if (!routing.locales.includes(resolvedLocale as (typeof routing.locales)[number])) {
-    throw new Error(`Invalid locale: ${resolvedLocale}`)
+    notFound()
   }
 
   // Charger les messages pour la locale

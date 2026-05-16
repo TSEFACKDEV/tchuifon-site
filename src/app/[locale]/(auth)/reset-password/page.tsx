@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -24,7 +24,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const t = useTranslations('auth.resetPassword')
   const locale = useLocale()
   const router = useRouter()
@@ -59,7 +59,7 @@ export default function ResetPasswordPage() {
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-400/20 mb-4">
           <RiLockLine className="w-7 h-7 text-green-300" />
         </div>
-        <h2 className="text-lg font-semibold text-white mb-2">{locale === 'fr' ? 'Succès !' : 'Success!'}</h2>
+        <h2 className="text-lg font-semibold text-white mb-2">{t('successTitle')}</h2>
         <p className="text-sm text-blue-200 mb-6">
           {t('success')}
         </p>
@@ -71,10 +71,10 @@ export default function ResetPasswordPage() {
     <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl p-8">
       <Link href={`/${locale}/login`} className="inline-flex items-center gap-1.5 text-sm text-blue-200 hover:text-white transition-colors mb-6">
         <RiArrowLeftLine className="w-4 h-4" />
-        {locale === 'fr' ? 'Retour' : 'Back'}
+        {t('back')}
       </Link>
       <h1 className="text-xl font-semibold text-white mb-1">{t('title')}</h1>
-      <p className="text-sm text-blue-200 mb-6">{locale === 'fr' ? 'Créez un nouveau mot de passe sécurisé.' : 'Create a new secure password.'}</p>
+      <p className="text-sm text-blue-200 mb-6">{t('description')}</p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
@@ -104,9 +104,17 @@ export default function ResetPasswordPage() {
           disabled={isSubmitting}
           className="w-full bg-white text-primary-800 hover:bg-blue-50 font-semibold py-2.5 rounded-lg transition-all text-sm disabled:opacity-60"
         >
-          {isSubmitting ? (locale === 'fr' ? 'Traitement...' : 'Processing...') : t('submit')}
+          {isSubmitting ? t('processing') : t('submit')}
         </button>
       </form>
     </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-8 text-center text-blue-200 text-sm">Chargement...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
   )
 }

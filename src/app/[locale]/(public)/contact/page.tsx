@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useTranslations, useLocale } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { toast } from '@/components/ui/Toast'
 import { RiMailLine, RiPhoneLine, RiMapPinLine, RiSendPlaneLine, RiCheckLine } from 'react-icons/ri'
 
@@ -17,7 +17,6 @@ type FormData = {
 
 export default function ContactPage() {
   const t = useTranslations('contact')
-  const locale = useLocale()
   const [sent, setSent] = useState(false)
 
   const schema = useMemo(
@@ -60,7 +59,7 @@ export default function ContactPage() {
           {[
             { icon: RiMailLine, label: t('emailLabel'), value: 'tchuifondonald@yahoo.fr', href: 'mailto:tchuifondonald@yahoo.fr' },
             { icon: RiPhoneLine, label: t('phoneLabel'), value: '+237 674 78 00 94', href: 'tel:+237674780094' },
-            { icon: RiMapPinLine, label: t('officeLabel'), value: locale === 'fr' ? 'PK 17 Douala, Campus ENSPD' : 'PK 17 Douala, ENSPD Campus', href: null },
+            { icon: RiMapPinLine, label: t('officeLabel'), value: t('officeAddress'), href: null },
           ].map(({ icon: Icon, label, value, href }) => (
             <div key={label} className="flex items-start gap-4 p-5 bg-white rounded-2xl border border-slate-200">
               <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center shrink-0">

@@ -16,6 +16,11 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
+
+  if (!routing.locales.includes(locale as (typeof routing.locales)[number])) {
+    return {}
+  }
+
   const t = await getTranslations({ locale, namespace: 'metadata' })
 
   return {

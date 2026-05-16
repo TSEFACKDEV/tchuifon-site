@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import { useLocale } from 'next-intl'
 import { RiExternalLinkLine } from 'react-icons/ri'
 
 type Props = {
@@ -9,6 +10,7 @@ type Props = {
 }
 
 export default function DashboardHeader({ title, subtitle, actions }: Props) {
+  const locale = useLocale()
   return (
     <div className="flex items-start justify-between gap-4 mb-8">
       <div>
@@ -16,7 +18,7 @@ export default function DashboardHeader({ title, subtitle, actions }: Props) {
         {subtitle && <p className="text-sm text-slate-500 mt-1">{subtitle}</p>}
       </div>
       <div className="flex items-center gap-3 shrink-0">
-        <Link href="/" target="_blank"
+        <Link href={`/${locale}`} target="_blank"
           className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs text-slate-500 hover:bg-slate-50 transition-colors">
           <RiExternalLinkLine className="w-3.5 h-3.5" />
           Voir le site

@@ -6,7 +6,7 @@ import { useLocale } from 'next-intl'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   RiArticleLine, RiBookOpenLine, RiGroupLine, RiAwardLine,
-  RiArrowRightLine, RiExternalLinkLine, RiMailLine,
+  RiArrowRightLine, RiMailLine,
   RiMapPinLine, RiPhoneLine, RiFlaskLine, RiLeafLine,
   RiDropLine,
 } from 'react-icons/ri'
@@ -127,8 +127,8 @@ export default function HomePage() {
   return (
     <div>
       {/* ── HERO ─────────────────────────────────────────────── */}
-      <section className="text-white relative overflow-hidden">
-        {/* Background slider */}
+      <section className="text-white relative overflow-hidden min-h-145 md:min-h-170">
+        {/* Background slider — images are fully visible */}
         <div className="absolute inset-0 z-0">
           <AnimatePresence initial={false}>
             <motion.div
@@ -149,34 +149,32 @@ export default function HomePage() {
               />
             </motion.div>
           </AnimatePresence>
-          {/* Multi-layer overlay for readability */}
-          <div className="absolute inset-0 bg-linear-to-br from-slate-900/85 via-primary-900/80 to-primary-800/75" />
-          <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
-        </div>
 
-        {/* Decorative blobs */}
-        <div className="absolute inset-0 z-1 pointer-events-none overflow-hidden">
-          <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-primary-600/10 blur-3xl" />
-          <div className="absolute -bottom-10 -left-10 w-64 h-64 rounded-full bg-primary-500/10 blur-2xl" />
+          {/* Subtle left-to-right gradient — dark on left for text legibility, fades out on right so image stays clear */}
+          <div className="absolute inset-0 bg-linear-to-r from-black/65 via-black/35 to-black/10" />
+          {/* Bottom gradient for slide indicators */}
+          <div className="absolute bottom-0 left-0 right-0 h-20 bg-linear-to-t from-black/40 to-transparent" />
         </div>
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-28 relative z-2">
-          <div className="grid md:grid-cols-5 gap-12 items-center">
+          <div className="grid md:grid-cols-5 gap-8 lg:gap-12 items-center">
+
+            {/* ── Left: text content ── */}
             <div className="md:col-span-3">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-blue-200 text-xs font-medium mb-6 border border-white/15">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 text-blue-100 text-xs font-medium mb-6 border border-white/25">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
                 {locale === 'fr' ? 'Enseignant-Chercheur' : 'Lecturer and Researcher'} · {displayDept}
               </div>
 
-              <h1 className="text-3xl md:text-4xl font-bold leading-tight mb-3">
+              <h1 className="text-3xl md:text-5xl font-bold leading-tight mb-3 drop-shadow-lg">
                 {displayName}
               </h1>
 
-              <p className="text-primary-200 text-base font-medium mb-4">
+              <p className="text-blue-200 text-base md:text-lg font-medium mb-5 drop-shadow-sm">
                 {displayTitle}
               </p>
 
-              <p className="text-blue-100/80 text-sm leading-relaxed mb-6 max-w-xl">
+              <p className="text-white/85 text-sm md:text-base leading-relaxed mb-7 max-w-xl drop-shadow-sm">
                 {displayBio
                   ? displayBio.slice(0, 220) + (displayBio.length > 220 ? '…' : '')
                   : locale === 'fr'
@@ -185,77 +183,75 @@ export default function HomePage() {
                 }
               </p>
 
+              {/* Contact info row */}
+              <div className="flex flex-wrap gap-x-5 gap-y-2 mb-8 text-sm">
+                <a href={`mailto:${displayEmail}`} className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
+                  <RiMailLine className="w-4 h-4 text-blue-300 shrink-0" />
+                  {displayEmail}
+                </a>
+                <a href={`tel:${displayPhone}`} className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
+                  <RiPhoneLine className="w-4 h-4 text-blue-300 shrink-0" />
+                  {displayPhone}
+                </a>
+                <span className="flex items-center gap-2 text-white/80">
+                  <RiMapPinLine className="w-4 h-4 text-blue-300 shrink-0" />
+                  {displayInst}
+                </span>
+              </div>
+
               <div className="flex flex-wrap gap-3">
                 <Link href={`/${locale}/publications`}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-primary-900 font-semibold text-sm hover:bg-blue-50 transition-colors shadow-sm">
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-gray-900 font-semibold text-sm hover:bg-blue-50 transition-colors shadow-lg">
                   {locale === 'fr' ? 'Mes publications' : 'My Publications'}
                   <RiArrowRightLine className="w-4 h-4" />
                 </Link>
                 <Link href={`/${locale}/contact`}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 text-white font-semibold text-sm hover:bg-white/20 transition-colors border border-white/20">
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/15 text-white font-semibold text-sm hover:bg-white/25 transition-colors border border-white/30">
                   <RiMailLine className="w-4 h-4" />
                   {locale === 'fr' ? 'Me contacter' : 'Contact Me'}
                 </Link>
                 {displayCV && (
                   <a href={displayCV} target="_blank" rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary-600/40 text-white font-semibold text-sm hover:bg-primary-600/60 transition-colors border border-primary-400/30">
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/15 text-white font-semibold text-sm hover:bg-white/25 transition-colors border border-white/30">
                     {locale === 'fr' ? 'Télécharger le CV' : 'Download CV'}
                   </a>
                 )}
               </div>
             </div>
 
-            <div className="md:col-span-2 flex flex-col items-center gap-5">
+            {/* ── Right: large profile photo ── */}
+            <div className="md:col-span-2 flex justify-center md:justify-end items-center">
               <div className="relative">
-                <div className="w-44 h-44 rounded-2xl overflow-hidden border-4 border-white/20 shadow-2xl bg-primary-700/50">
+                {/* Outer glow ring */}
+                <div className="absolute -inset-2 rounded-[28px] bg-white/10 blur-md" />
+
+                {/* Photo frame — portrait 3:4 ratio */}
+                <div className="relative w-56 h-72 sm:w-64 sm:h-80 md:w-72 md:h-96 rounded-3xl overflow-hidden border-[3px] border-white/30 shadow-2xl bg-slate-700/60">
                   {displayPhoto ? (
                     <Image
                       src={displayPhoto}
                       alt={displayName}
-                      width={176} height={176}
-                      className="w-full h-full object-cover"
+                      width={288}
+                      height={384}
+                      className="w-full h-full object-cover object-top"
                       priority
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-5xl font-bold text-white/40">T</span>
+                    <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-slate-600 to-slate-800">
+                      <span className="text-8xl font-bold text-white/25">T</span>
                     </div>
                   )}
+                  {/* Subtle inner vignette at bottom for badge readability */}
+                  <div className="absolute bottom-0 left-0 right-0 h-16 bg-linear-to-t from-black/40 to-transparent" />
                 </div>
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-1 rounded-full bg-white text-primary-800 text-xs font-semibold shadow-md">
+
+                {/* Institution badge */}
+                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap px-4 py-1.5 rounded-full bg-white text-slate-800 text-xs font-bold shadow-xl border border-slate-100">
                   {displayInst.includes('(') ? displayInst.split('(')[1].replace(')', '') : 'ENSPD'}
                 </div>
               </div>
-
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/15 text-sm space-y-3 w-full mt-4">
-                <div className="flex items-start gap-3 text-blue-100">
-                  <RiMapPinLine className="w-4 h-4 text-blue-300 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-xs text-blue-300 mb-0.5">{locale === 'fr' ? 'Institution' : 'Institution'}</p>
-                    <p className="text-sm">{displayInst}</p>
-                    <p className="text-xs text-blue-300 mt-0.5">{displayDept}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 text-blue-100">
-                  <RiMailLine className="w-4 h-4 text-blue-300 shrink-0" />
-                  <a href={`mailto:${displayEmail}`} className="hover:text-white transition-colors truncate text-sm">
-                    {displayEmail}
-                  </a>
-                </div>
-                <div className="flex items-center gap-3 text-blue-100">
-                  <RiPhoneLine className="w-4 h-4 text-blue-300 shrink-0" />
-                  <a href={`tel:${displayPhone}`} className="hover:text-white transition-colors text-sm">
-                    {displayPhone}
-                  </a>
-                </div>
-                {displayWeb && (
-                  <a href={displayWeb} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-blue-100 hover:text-white transition-colors">
-                    <RiExternalLinkLine className="w-4 h-4 text-blue-300 shrink-0" />
-                    <span className="text-sm truncate">{locale === 'fr' ? 'Site ENSPD' : 'ENSPD Website'}</span>
-                  </a>
-                )}
-              </div>
             </div>
+
           </div>
         </div>
 
@@ -266,14 +262,14 @@ export default function HomePage() {
               key={i}
               onClick={() => setCurrentSlide(i)}
               aria-label={`Slide ${i + 1}`}
-              className="focus:outline-none group"
+              className="focus:outline-none"
             >
               <motion.span
-                className="block rounded-full bg-white/50 transition-colors"
+                className="block rounded-full"
                 animate={{
                   width: i === currentSlide ? 28 : 8,
                   height: 8,
-                  backgroundColor: i === currentSlide ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.4)',
+                  backgroundColor: i === currentSlide ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.45)',
                 }}
                 transition={{ duration: 0.4, ease: 'easeInOut' }}
               />

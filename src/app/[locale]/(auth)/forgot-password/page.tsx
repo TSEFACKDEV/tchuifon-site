@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-400/20 mb-4">
           <RiMailLine className="w-7 h-7 text-green-300" />
         </div>
-        <h2 className="text-lg font-semibold text-white mb-2">{locale === 'fr' ? 'Email envoyé' : 'Email Sent'}</h2>
+        <h2 className="text-lg font-semibold text-white mb-2">{t('emailSentTitle')}</h2>
         <p className="text-sm text-blue-200 mb-6">
           {t('emailSent')}
         </p>
@@ -57,10 +57,10 @@ export default function ForgotPasswordPage() {
     <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl p-8">
       <Link href={`/${locale}/login`} className="inline-flex items-center gap-1.5 text-sm text-blue-200 hover:text-white transition-colors mb-6">
         <RiArrowLeftLine className="w-4 h-4" />
-        {locale === 'fr' ? 'Retour' : 'Back'}
+        {t('back')}
       </Link>
       <h1 className="text-xl font-semibold text-white mb-1">{t('title')}</h1>
-      <p className="text-sm text-blue-200 mb-6">{locale === 'fr' ? 'Entrez votre email pour recevoir un lien de réinitialisation.' : 'Enter your email to receive a reset link.'}</p>
+      <p className="text-sm text-blue-200 mb-6">{t('description')}</p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
@@ -68,7 +68,7 @@ export default function ForgotPasswordPage() {
           <input
             {...register('email')}
             type="email"
-            placeholder={locale === 'fr' ? 'votre@email.com' : 'your@email.com'}
+            placeholder={t('emailPlaceholder')}
             className="w-full px-4 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-blue-300/60 focus:outline-none focus:ring-2 focus:ring-white/40 text-sm"
           />
           {errors.email && <p className="text-xs text-red-300">{errors.email.message}</p>}
@@ -79,7 +79,7 @@ export default function ForgotPasswordPage() {
           disabled={isSubmitting}
           className="w-full bg-white text-primary-800 hover:bg-blue-50 font-semibold py-2.5 rounded-lg transition-all text-sm disabled:opacity-60"
         >
-          {isSubmitting ? (locale === 'fr' ? 'Envoi...' : 'Sending...') : t('submit')}
+          {isSubmitting ? t('sending') : t('submit')}
         </button>
       </form>
     </div>

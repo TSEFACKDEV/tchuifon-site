@@ -37,7 +37,8 @@ export const useAuthStore = create<AuthState>()(
       logout: async () => {
         await fetch('/api/auth/logout', { method: 'POST' })
         set({ user: null })
-        window.location.href = '/login'
+        const locale = window.location.pathname.split('/')[1] || 'fr'
+        window.location.href = `/${locale}/login`
       },
 
       fetchMe: async () => {

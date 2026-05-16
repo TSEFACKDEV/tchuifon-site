@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendResetPasswordEmail } from '@/lib/mail'
+import { getBaseUrl } from '@/lib/api'
 import crypto from 'crypto'
 import { z } from 'zod'
 
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`
+    const resetUrl = `${getBaseUrl()}/fr/reset-password?token=${token}`
     await sendResetPasswordEmail(email, resetUrl)
 
     return genericResponse

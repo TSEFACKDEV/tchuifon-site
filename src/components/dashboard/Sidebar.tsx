@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useLocale } from 'next-intl'
 import { motion, AnimatePresence } from 'framer-motion'
 import { clsx } from 'clsx'
 import { useAuthStore, type User } from '@/store/authStore'
@@ -13,20 +14,22 @@ import {
   RiFlaskLine, RiSettings3Line,
 } from 'react-icons/ri'
 
-const navItems = [
-  { href: '/dashboard',               label: 'Vue d\'ensemble', icon: RiDashboardLine, exact: true },
-  { href: '/dashboard/publications',  label: 'Publications',    icon: RiArticleLine },
-  { href: '/dashboard/courses',       label: 'Cours',           icon: RiBookOpenLine },
-  { href: '/dashboard/supervisions',  label: 'Encadrements',    icon: RiAwardLine },
-  { href: '/dashboard/collaborators', label: 'Collaborateurs',  icon: RiGroupLine },
-  { href: '/dashboard/users',         label: 'Utilisateurs',    icon: RiUserLine,     adminOnly: true },
-  { href: '/dashboard/messages',      label: 'Messages',        icon: RiMailLine },
-  { href: '/dashboard/profile',       label: 'Mon profil',      icon: RiSettings3Line },
+const baseNavItems = [
+  { path: '/dashboard',               label: 'Vue d\'ensemble', icon: RiDashboardLine, exact: true },
+  { path: '/dashboard/publications',  label: 'Publications',    icon: RiArticleLine },
+  { path: '/dashboard/courses',       label: 'Cours',           icon: RiBookOpenLine },
+  { path: '/dashboard/supervisions',  label: 'Encadrements',    icon: RiAwardLine },
+  { path: '/dashboard/collaborators', label: 'Collaborateurs',  icon: RiGroupLine },
+  { path: '/dashboard/users',         label: 'Utilisateurs',    icon: RiUserLine,     adminOnly: true },
+  { path: '/dashboard/messages',      label: 'Messages',        icon: RiMailLine },
+  { path: '/dashboard/profile',       label: 'Mon profil',      icon: RiSettings3Line },
 ]
+
+type NavItem = { href: string; label: string; icon: React.ElementType; exact?: boolean; adminOnly?: boolean }
 
 type SidebarContentProps = {
   collapsed: boolean
-  filteredItems: typeof navItems
+  filteredItems: NavItem[]
   user: User | null
   logout: () => void
   isActive: (href: string, exact?: boolean) => boolean
@@ -137,9 +140,15 @@ function SidebarContent({
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const locale = useLocale()
   const { user, logout } = useAuthStore()
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  const navItems: NavItem[] = baseNavItems.map(item => ({
+    ...item,
+    href: `/${locale}${item.path}`,
+  }))
 
   const isActive = (href: string, exact?: boolean) =>
     exact ? pathname === href : pathname.startsWith(href)

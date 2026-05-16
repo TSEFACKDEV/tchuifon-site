@@ -105,13 +105,11 @@ export default function LoginPage() {
             disabled={isSubmitting}
             className="w-full py-2.5 rounded-lg bg-white text-blue-900 font-semibold text-sm hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? t('errors.networkError') : t('submit')}
+            {isSubmitting ? t('submitting') : t('submit')}
           </button>
         </form>
 
-        <div className="mt-4 text-center text-sm text-blue-200">
-          {t('noAccount')} <Link href={`/${locale}/register`} className="text-white font-semibold hover:underline">{t('register')}</Link>
-        </div>
+
       </div>
     </div>
   )
