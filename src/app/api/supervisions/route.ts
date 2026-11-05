@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 const supervisionSchema = z.object({
   studentName: z.string().min(1, 'Nom de l\'étudiant requis'),
-  level: z.enum(['INGENIEUR', 'MASTER_2', 'DOCTORAT', 'POST_DOC']).nullable().optional(),
+  level: z.enum(['INGENIEUR', 'MASTER_2', 'MASTER_PROFESSIONNEL', 'DOCTORAT', 'POST_DOC']).nullable().optional(),
   topic: z.string().min(1, 'Sujet requis'),
   description: z.string().optional(),
   startDate: z.string().optional(),
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get('status')
 
     const where: Record<string, unknown> = {}
-    if (level && ['INGENIEUR', 'MASTER_2', 'DOCTORAT', 'POST_DOC'].includes(level)) {
+    if (level && ['INGENIEUR', 'MASTER_2', 'MASTER_PROFESSIONNEL', 'DOCTORAT', 'POST_DOC'].includes(level)) {
       where.level = level
     }
     if (status && ['IN_PROGRESS', 'COMPLETED', 'ABANDONED'].includes(status)) {

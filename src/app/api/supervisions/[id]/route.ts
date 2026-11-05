@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 const updateSchema = z.object({
   studentName: z.string().optional(),
-  level: z.enum(['INGENIEUR', 'MASTER_2', 'DOCTORAT', 'POST_DOC']).nullable().optional(),
+  level: z.enum(['INGENIEUR', 'MASTER_2', 'MASTER_PROFESSIONNEL', 'DOCTORAT', 'POST_DOC']).nullable().optional(),
   topic: z.string().optional(),
   description: z.string().optional(),
   startDate: z.string().optional(),

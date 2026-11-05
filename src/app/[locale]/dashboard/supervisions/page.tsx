@@ -13,7 +13,7 @@ import { clsx } from 'clsx'
 
 type SupervisionFormData = {
   studentName: string
-  level?: 'INGENIEUR' | 'MASTER_2' | 'DOCTORAT' | 'POST_DOC' | null
+  level?: 'INGENIEUR' | 'MASTER_2' | 'MASTER_PROFESSIONNEL' | 'DOCTORAT' | 'POST_DOC' | null
   topic: string
   description?: string
   startDate?: string
@@ -27,7 +27,7 @@ const STATUS_LABELS: Record<string, string> = { IN_PROGRESS: 'En cours', COMPLET
 const STATUS_COLORS: Record<string, string> = {
   IN_PROGRESS: 'bg-blue-50 text-blue-700', COMPLETED: 'bg-green-50 text-green-700', ABANDONED: 'bg-red-50 text-red-600',
 }
-const LEVEL_LABELS: Record<string, string> = { INGENIEUR: 'Ingénieur', MASTER_2: 'Master 2', DOCTORAT: 'Doctorat', POST_DOC: 'Post-Doc' }
+const LEVEL_LABELS: Record<string, string> = { INGENIEUR: 'Ingénieur', MASTER_2: 'Master 2', MASTER_PROFESSIONNEL: 'Master pro.', DOCTORAT: 'Doctorat', POST_DOC: 'Post-Doc' }
 
 export default function DashboardSupervisionsPage() {
   const [items, setItems] = useState<Supervision[]>([])

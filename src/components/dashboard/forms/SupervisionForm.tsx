@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button'
 
 const schema = z.object({
   studentName:  z.string().min(1, 'Nom requis'),
-  level:        z.enum(['INGENIEUR', 'MASTER_2', 'DOCTORAT', 'POST_DOC']).nullable().optional(),
+  level:        z.enum(['INGENIEUR', 'MASTER_2', 'MASTER_PROFESSIONNEL', 'DOCTORAT', 'POST_DOC']).nullable().optional(),
   topic:        z.string().min(1, 'Sujet requis'),
   description:  z.string().optional(),
   startDate:    z.string().optional(),
@@ -50,6 +50,7 @@ export default function SupervisionForm({ initialData, onSubmit, loading }: {
             <option value="">— Sélectionner —</option>
             <option value="INGENIEUR">Ingénieur</option>
             <option value="MASTER_2">Master 2</option>
+            <option value="MASTER_PROFESSIONNEL">Master professionnel</option>
             <option value="DOCTORAT">Doctorat</option>
             <option value="POST_DOC">Post-Doc</option>
           </select>

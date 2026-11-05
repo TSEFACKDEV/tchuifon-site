@@ -68,6 +68,7 @@ function HBarChart({ data }: { data: Record<string, number> }) {
 const SUP_LEVEL_META: Record<string, { label: string; color: string }> = {
   INGENIEUR: { label: 'Ingénieur', color: '#f59e0b' },
   MASTER_2:  { label: 'Master 2',  color: '#8b5cf6' },
+  MASTER_PROFESSIONNEL: { label: 'Master pro.', color: '#ec4899' },
   DOCTORAT:  { label: 'Doctorat',  color: '#10b981' },
   POST_DOC:  { label: 'Post-Doc',  color: '#0ea5e9' },
   UNKNOWN:   { label: 'Autre',     color: '#94a3b8' },

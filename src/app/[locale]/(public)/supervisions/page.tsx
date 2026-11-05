@@ -22,6 +22,7 @@ const LEVEL_OPTIONS = [
   { value: '', labelFr: 'Tous niveaux', labelEn: 'All levels' },
   { value: 'INGENIEUR', labelFr: 'Ingénieur', labelEn: 'Engineer' },
   { value: 'MASTER_2', labelFr: 'Master 2', labelEn: 'Master 2' },
+  { value: 'MASTER_PROFESSIONNEL', labelFr: 'Master pro.', labelEn: 'Professional Master' },
   { value: 'DOCTORAT', labelFr: 'Doctorat', labelEn: 'Doctorate' },
   { value: 'POST_DOC', labelFr: 'Post-Doc', labelEn: 'Post-Doc' },
 ]

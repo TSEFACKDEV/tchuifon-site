@@ -221,6 +221,7 @@
     "supervisionLevel": {
       "INGENIEUR": "Engineer",
       "MASTER_2": "Master 2",
+      "MASTER_PROFESSIONNEL": "Professional Master",
       "DOCTORAT": "Doctorate",
       "POST_DOC": "Post-Doc"
     },

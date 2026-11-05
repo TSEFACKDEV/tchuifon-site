@@ -241,6 +241,7 @@ enum CourseLevel {
 enum SupervisionLevel {
   INGENIEUR
   MASTER_2
+  MASTER_PROFESSIONNEL
   DOCTORAT
   POST_DOC
 }
