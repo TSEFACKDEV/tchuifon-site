@@ -1,83 +1,72 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { signAccessToken, signRefreshToken, verifyRefreshToken } from '@/lib/jwt'
+import { routing } from '@/i18n/routing'
+import {
+  clearAuthCookies,
+  rotateRefreshToken,
+  setAuthCookies,
+} from '@/lib/session'
+
+/** N'autorise que les chemins internes (protection contre l'open redirect). */
+function safeRedirect(value: string | null): string | null {
+  if (!value || !value.startsWith('/') || value.startsWith('//')) return null
+  if (value.includes('\\') || /[\r\n]/.test(value)) return null
+  return value
+}
+
+function loginUrl(req: NextRequest, redirectTo: string) {
+  const locale = routing.locales.find(
+    (candidate) =>
+      redirectTo === `/${candidate}` || redirectTo.startsWith(`/${candidate}/`)
+  )
+
+  return new URL(`/${locale ?? routing.defaultLocale}/login`, req.url)
+}
+
+/**
+ * GET /api/auth/refresh?redirect=/fr/dashboard
+ * Utilisé par le middleware lorsqu'un access token est expiré mais que le
+ * refresh token est encore valide. Rafraîchit la session puis renvoie
+ * l'utilisateur vers la page demandée.
+ */
+export async function GET(req: NextRequest) {
+  const redirectTo = safeRedirect(req.nextUrl.searchParams.get('redirect'))
+
+  if (!redirectTo) {
+    return clearAuthCookies(
+      NextResponse.json({ error: 'Destination invalide' }, { status: 400 })
+    )
+  }
+
+  try {
+    const tokens = await rotateRefreshToken(req)
+
+    if (!tokens) {
+      return clearAuthCookies(
+        NextResponse.redirect(loginUrl(req, redirectTo))
+      )
+    }
+
+    return setAuthCookies(NextResponse.redirect(new URL(redirectTo, req.url)), tokens)
+  } catch (error) {
+    console.error('[REFRESH_GET]', error)
+    return clearAuthCookies(NextResponse.redirect(loginUrl(req, redirectTo)))
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const refreshToken = req.cookies.get('refresh_token')?.value
+    const tokens = await rotateRefreshToken(req)
 
-    if (!refreshToken) {
-      return NextResponse.json(
-        { error: 'Refresh token manquant' },
-        { status: 401 }
+    if (!tokens) {
+      return clearAuthCookies(
+        NextResponse.json(
+          { error: 'Session expirée, veuillez vous reconnecter' },
+          { status: 401 }
+        )
       )
     }
 
-    // Vérifier la signature JWT (throws si invalide ou expiré)
-    try {
-      verifyRefreshToken(refreshToken)
-    } catch {
-      return NextResponse.json(
-        { error: 'Refresh token invalide ou expiré' },
-        { status: 401 }
-      )
-    }
-
-    // Vérifier que le token existe en base et n'est pas expiré
-    const stored = await prisma.refreshToken.findUnique({
-      where: { token: refreshToken },
-      include: { user: true },
-    })
-
-    if (!stored || stored.expiresAt < new Date()) {
-      // Supprimer si expiré
-      if (stored) {
-        await prisma.refreshToken.delete({ where: { token: refreshToken } })
-      }
-      return NextResponse.json(
-        { error: 'Session expirée, veuillez vous reconnecter' },
-        { status: 401 }
-      )
-    }
-
-    // Rotation du refresh token (sécurité renforcée)
-    await prisma.refreshToken.delete({ where: { token: refreshToken } })
-
-    const newAccessToken = signAccessToken({
-      userId: stored.user.id,
-      role: stored.user.role,
-    })
-
-    const newRefreshToken = signRefreshToken({ userId: stored.user.id })
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-
-    await prisma.refreshToken.create({
-      data: {
-        token: newRefreshToken,
-        userId: stored.user.id,
-        expiresAt,
-      },
-    })
-
-    const response = NextResponse.json({ success: true })
-
-    response.cookies.set('access_token', newAccessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 15 * 60,
-      path: '/',
-    })
-
-    response.cookies.set('refresh_token', newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60,
-      path: '/',
-    })
-
-    return response
+    return setAuthCookies(NextResponse.json({ success: true }), tokens)
   } catch (error) {
     console.error('[REFRESH]', error)
     return NextResponse.json(

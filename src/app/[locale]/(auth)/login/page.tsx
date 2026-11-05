@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -10,11 +10,10 @@ import { useAuthStore } from '@/store/authStore'
 import { toast } from '@/components/ui/Toast'
 import { RiFlaskLine, RiEyeLine, RiEyeOffLine } from 'react-icons/ri'
 
-const schema = z.object({
-  email: z.string().email('Email invalide'),
-  password: z.string().min(1, 'Mot de passe requis'),
-})
-type FormData = z.infer<typeof schema>
+type FormData = {
+  email: string
+  password: string
+}
 
 export default function LoginPage() {
   const t = useTranslations('auth.login')
@@ -22,6 +21,15 @@ export default function LoginPage() {
   const router = useRouter()
   const { setUser } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
+
+  const schema = useMemo(
+    () =>
+      z.object({
+        email: z.string().email(t('errors.invalidEmail')),
+        password: z.string().min(1, t('errors.passwordRequired')),
+      }),
+    [t]
+  )
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -37,12 +45,12 @@ export default function LoginPage() {
       const json = await res.json()
 
       if (!res.ok) {
-        toast.error(json.error ?? t('errors.invalidCredentials'))
+        toast.error(res.status === 401 ? t('errors.invalidCredentials') : (json.error ?? t('errors.invalidCredentials')))
         return
       }
 
       setUser(json.user)
-      toast.success('Connexion réussie')
+      toast.success(t('success'))
       router.push(`/${locale}/dashboard`)
     } catch {
       toast.error(t('errors.networkError'))

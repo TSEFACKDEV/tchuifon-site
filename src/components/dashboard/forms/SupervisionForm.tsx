@@ -2,12 +2,12 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { FormField, inputClass, selectClass, textareaClass } from '../FormField'
+import { FormField, inputClass, selectClass, textareaClass, optionalSelect } from '../FormField'
 import { Button } from '@/components/ui/Button'
 
 const schema = z.object({
   studentName:  z.string().min(1, 'Nom requis'),
-  level:        z.enum(['INGENIEUR', 'MASTER_2', 'DOCTORAT', 'POST_DOC']).optional(),
+  level:        z.enum(['INGENIEUR', 'MASTER_2', 'DOCTORAT', 'POST_DOC']).nullable().optional(),
   topic:        z.string().min(1, 'Sujet requis'),
   description:  z.string().optional(),
   startDate:    z.string().optional(),
@@ -33,15 +33,20 @@ export default function SupervisionForm({ initialData, onSubmit, loading }: {
     },
   })
 
+  const submit = (data: FormData) => onSubmit({
+    ...data,
+    level: data.level ?? null,
+  })
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5">
+    <form onSubmit={handleSubmit(submit)} className="p-6 space-y-5">
       <FormField label="Nom de l'étudiant" required error={errors.studentName?.message}>
         <input {...register('studentName')} className={inputClass} placeholder="Prénom NOM" />
       </FormField>
 
       <div className="grid sm:grid-cols-2 gap-4">
         <FormField label="Niveau">
-          <select {...register('level')} className={selectClass}>
+          <select {...register('level', { setValueAs: optionalSelect })} className={selectClass}>
             <option value="">— Sélectionner —</option>
             <option value="INGENIEUR">Ingénieur</option>
             <option value="MASTER_2">Master 2</option>

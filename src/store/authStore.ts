@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { apiFetch } from '@/lib/client-api'
 
 type Profile = {
   fullName?: string
@@ -35,16 +36,19 @@ export const useAuthStore = create<AuthState>()(
       setLoading: (isLoading) => set({ isLoading }),
 
       logout: async () => {
-        await fetch('/api/auth/logout', { method: 'POST' })
-        set({ user: null })
-        const locale = window.location.pathname.split('/')[1] || 'fr'
-        window.location.href = `/${locale}/login`
+        try {
+          await fetch('/api/auth/logout', { method: 'POST' })
+        } finally {
+          set({ user: null })
+          const locale = window.location.pathname.split('/')[1] || 'fr'
+          window.location.href = `/${locale}/login`
+        }
       },
 
       fetchMe: async () => {
         set({ isLoading: true })
         try {
-          const res = await fetch('/api/auth/me')
+          const res = await apiFetch('/api/auth/me')
           const data = await res.json()
           set({ user: data.user ?? null })
         } catch {

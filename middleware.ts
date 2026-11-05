@@ -1,50 +1,66 @@
 import createMiddleware from 'next-intl/middleware'
 import { NextRequest, NextResponse } from 'next/server'
 import { routing } from './src/i18n/routing'
-import { verifyAccessTokenEdge } from './src/lib/jwt-edge'
+import {
+  verifyAccessTokenEdge,
+  verifyRefreshTokenEdge,
+} from './src/lib/jwt-edge'
 
 const intlMiddleware = createMiddleware(routing)
 
-export async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl
-  const token = req.cookies.get('access_token')?.value
+const localePattern = new RegExp(`^/(${routing.locales.join('|')})(/|$)`)
 
-  // Extraire la locale depuis le chemin (ex: /fr/dashboard → 'fr')
-  const localeMatch = pathname.match(/^\/(fr|en)(\/|$)/)
+export async function middleware(req: NextRequest) {
+  const { pathname, search } = req.nextUrl
+  const localeMatch = pathname.match(localePattern)
   const locale = localeMatch?.[1] ?? routing.defaultLocale
 
-  // Rediriger explicitement les chemins sans préfixe de locale vers la locale par défaut
-  if (!localeMatch) {
-    const search = req.nextUrl.search
-    const redirectPath = pathname === '/' ? `/${routing.defaultLocale}` : `/${routing.defaultLocale}${pathname}`
-    return NextResponse.redirect(new URL(redirectPath + search, req.url))
+  const accessToken = req.cookies.get('access_token')?.value
+  const refreshToken = req.cookies.get('refresh_token')?.value
+
+  const payload = accessToken
+    ? await verifyAccessTokenEdge(accessToken)
+    : null
+
+  // Access token expiré mais refresh token encore valide : on passe par la
+  // route de rotation, qui remettra des cookies à jour avant de revenir ici.
+  if (!payload && refreshToken) {
+    const refreshPayload = await verifyRefreshTokenEdge(refreshToken)
+
+    if (refreshPayload) {
+      const refreshUrl = new URL('/api/auth/refresh', req.url)
+      refreshUrl.searchParams.set('redirect', `${pathname}${search}`)
+      return NextResponse.redirect(refreshUrl)
+    }
   }
 
-  // Déterminer le premier segment de route après la locale
+  // Laisser next-intl gérer la détection et la redirection de locale.
+  if (!localeMatch) {
+    return intlMiddleware(req)
+  }
+
   const segments = pathname.split('/')
   // segments: ['', 'fr', 'dashboard', ...]
   const firstSegment = segments[2] ?? ''
 
   const isProtected = firstSegment === 'dashboard'
-  const isAuthPage = firstSegment === 'login' || firstSegment === 'forgot-password' || firstSegment === 'reset-password'
+  const isLoginPage = firstSegment === 'login'
 
-  if (isProtected) {
-    if (!token) {
-      return NextResponse.redirect(new URL(`/${locale}/login`, req.url))
-    }
-    const payload = await verifyAccessTokenEdge(token)
-    if (!payload) {
-      const res = NextResponse.redirect(new URL(`/${locale}/login`, req.url))
+  if (isProtected && !payload) {
+    const res = NextResponse.redirect(new URL(`/${locale}/login`, req.url))
+
+    if (accessToken || refreshToken) {
       res.cookies.delete('access_token')
-      return res
+      res.cookies.delete('refresh_token')
     }
+
+    return res
   }
 
-  if (isAuthPage && token) {
-    const payload = await verifyAccessTokenEdge(token)
-    if (payload) {
-      return NextResponse.redirect(new URL(`/${locale}/dashboard`, req.url))
-    }
+  // Ne rediriger que la page de connexion : les pages « mot de passe oublié »
+  // et « réinitialisation » doivent rester accessibles même connecté.
+  if (isLoginPage && payload) {
+    return NextResponse.redirect(new URL(`/${locale}/dashboard`, req.url))
   }
 
   return intlMiddleware(req)

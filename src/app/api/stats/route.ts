@@ -1,14 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireAuth } from '@/lib/auth'
 
 // GET /api/stats — statistiques publiques du site
-// ?dashboard=1 → inclut les données agrégées pour les graphes
+// ?dashboard=1 → données agrégées réservées à l'administration
 export async function GET(req: NextRequest) {
   const dashboard = req.nextUrl.searchParams.get('dashboard') === '1'
+
+  if (dashboard) {
+    const auth = requireAuth(req, ['ADMIN'])
+    if (auth instanceof NextResponse) return auth
+  }
+
   try {
+    // Le public ne voit que les contenus publiés/actifs.
+    // Le dashboard, lui, doit refléter l'intégralité du contenu géré.
+    const publicationWhere = dashboard ? {} : { isPublished: true }
+    const courseWhere = dashboard ? {} : { isActive: true }
+
     const [publications, courses, supervisions, collaborators] = await Promise.all([
-      prisma.publication.count({ where: { isPublished: true } }),
-      prisma.course.count({ where: { isActive: true } }),
+      prisma.publication.count({ where: publicationWhere }),
+      prisma.course.count({ where: courseWhere }),
       prisma.supervision.count(),
       prisma.collaborator.count(),
     ])
@@ -19,7 +31,11 @@ export async function GET(req: NextRequest) {
 
     // Données supplémentaires pour les graphes du dashboard
     const [pubByTypeRaw, supByLevelRaw, supByStatusRaw] = await Promise.all([
-      prisma.publication.groupBy({ by: ['type'], _count: { _all: true } }),
+      prisma.publication.groupBy({
+        by: ['type'],
+        where: publicationWhere,
+        _count: { _all: true },
+      }),
       prisma.supervision.groupBy({ by: ['level'], _count: { _all: true } }),
       prisma.supervision.groupBy({ by: ['status'], _count: { _all: true } }),
     ])

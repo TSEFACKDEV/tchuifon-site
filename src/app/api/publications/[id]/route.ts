@@ -10,11 +10,14 @@ const updateSchema = z.object({
   journal: z.string().optional(),
   conference: z.string().optional(),
   publicationDate: z.string().optional(),
-  year: z.number().int().optional(),
+  year: z.number().int().nullable().optional(),
   volume: z.string().optional(),
   issue: z.string().optional(),
   pages: z.string().optional(),
+  publisher: z.string().optional(),
   doi: z.string().optional(),
+  isbn: z.string().optional(),
+  issn: z.string().optional(),
   pdfUrl: z.string().optional(),
   type: z.enum(['ARTICLE', 'CONFERENCE', 'BOOK_CHAPTER', 'THESIS', 'PATENT', 'POSTER']).optional(),
   keywords: z.array(z.string()).optional(),
@@ -88,7 +91,9 @@ export async function PUT(
       where: { id },
       data: {
         ...data,
-        ...(publicationDate ? { publicationDate: new Date(publicationDate) } : {}),
+        ...(publicationDate !== undefined
+          ? { publicationDate: publicationDate ? new Date(publicationDate) : null }
+          : {}),
         ...collaboratorsUpdate,
       },
       include: {

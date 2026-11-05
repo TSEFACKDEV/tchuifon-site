@@ -1,8 +1,8 @@
 'use client'
-import { useForm, useFieldArray } from 'react-hook-form'
+import { useForm, useFieldArray, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { FormField, inputClass, selectClass, textareaClass } from '../FormField'
+import { FormField, inputClass, selectClass, textareaClass, optionalNumber } from '../FormField'
 import { Button } from '@/components/ui/Button'
 import FileUpload from '../FileUpload'
 import { RiAddLine, RiDeleteBinLine } from 'react-icons/ri'
@@ -13,7 +13,7 @@ const schema = z.object({
   authors:        z.array(z.object({ value: z.string().min(1) })).min(1),
   journal:        z.string().optional(),
   conference:     z.string().optional(),
-  year:           z.number().int().min(1900).max(2100).optional(),
+  year:           z.number().int().min(1900).max(2100).nullable().optional(),
   volume:         z.string().optional(),
   issue:          z.string().optional(),
   pages:          z.string().optional(),
@@ -38,7 +38,7 @@ type Props = {
 }
 
 export default function PublicationForm({ initialData, onSubmit, loading }: Props) {
-  const { register, handleSubmit, setValue, watch, control, formState: { errors } } =
+  const { register, handleSubmit, setValue, control, formState: { errors } } =
     useForm<FormData>({
       resolver: zodResolver(schema),
       defaultValues: {                                         // ← valeurs par défaut ici
@@ -54,11 +54,12 @@ export default function PublicationForm({ initialData, onSubmit, loading }: Prop
     useFieldArray({ control, name: 'authors' })
   const { fields: keywordFields, append: addKeyword, remove: removeKeyword } =
     useFieldArray({ control, name: 'keywords' })
+  const pdfUrl = useWatch({ control, name: 'pdfUrl' })
 
   const handleFormSubmit = (data: FormData) => {
     onSubmit({
       ...data,
-      year: data.year ? Number(data.year) : undefined,
+      year: data.year ?? null,
       authors: data.authors.map(a => a.value).filter(Boolean),
       keywords: data.keywords.map(k => k.value).filter(Boolean),
     })
@@ -82,7 +83,7 @@ export default function PublicationForm({ initialData, onSubmit, loading }: Prop
           </select>
         </FormField>
         <FormField label="Année">
-          <input {...register('year', { valueAsNumber: true })} type="number"
+          <input {...register('year', { setValueAs: optionalNumber })} type="number"
             className={inputClass} placeholder="2024" />
         </FormField>
       </div>
@@ -175,9 +176,9 @@ export default function PublicationForm({ initialData, onSubmit, loading }: Prop
         folder="publications"
         accept="application/pdf"
         label="Fichier PDF"
-        currentUrl={watch('pdfUrl')}
+        currentUrl={pdfUrl}
         onUpload={(url) => setValue('pdfUrl', url)}
-        onRemove={() => setValue('pdfUrl', undefined)}
+        onRemove={() => setValue('pdfUrl', '')}
       />
 
       <div className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 border border-slate-200">

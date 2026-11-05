@@ -13,7 +13,7 @@ const profileSchema = z.object({
   degrees: z.array(z.string()).optional(),
   institution: z.string().optional(),
   department: z.string().optional(),
-  email: z.string().email().optional(),
+  email: z.string().email().optional().or(z.literal('')),
   phone: z.string().optional(),
   officeLocation: z.string().optional(),
   googleScholar: z.string().optional(),
@@ -53,9 +53,15 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 })
     }
 
-    const profile = await prisma.profile.update({
+    const profile = await prisma.profile.upsert({
       where: { userId: auth.user.userId },
-      data: parsed.data,
+      update: parsed.data,
+      create: {
+        userId: auth.user.userId,
+        ...parsed.data,
+        specializations: parsed.data.specializations ?? [],
+        degrees: parsed.data.degrees ?? [],
+      },
     })
 
     return NextResponse.json(profile)

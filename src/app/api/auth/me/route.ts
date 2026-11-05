@@ -1,37 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getAuthUser } from '@/lib/auth'
 import { verifyAccessToken } from '@/lib/jwt'
+import { rotateRefreshToken, setAuthCookies, type AuthTokens } from '@/lib/session'
+
+async function loadUser(userId: string) {
+  return prisma.user.findUnique({
+    where: { id: userId },
+    include: { profile: true },
+  })
+}
+
+function toPublicUser(user: NonNullable<Awaited<ReturnType<typeof loadUser>>>) {
+  return {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    profile: user.profile,
+  }
+}
 
 export async function GET(req: NextRequest) {
   try {
-    const token = req.cookies.get('access_token')?.value
+    // 1. Access token valide (cookie ou header Authorization pour les tests API)
+    const authUser = getAuthUser(req)
 
-    if (!token) {
-      return NextResponse.json({ user: null }, { status: 200 })
+    if (authUser) {
+      const user = await loadUser(authUser.userId)
+      return NextResponse.json({ user: user ? toPublicUser(user) : null })
     }
 
-    let payload: { userId: string; role: string }
+    // 2. Access token expiré : on tente une rotation transparente du refresh token
+    let tokens: AuthTokens | null = null
+
     try {
-      payload = verifyAccessToken(token)
-    } catch {
+      tokens = await rotateRefreshToken(req)
+    } catch (error) {
+      console.error('[ME_REFRESH]', error)
+    }
+
+    if (!tokens) {
       return NextResponse.json({ user: null }, { status: 200 })
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: payload.userId },
-      include: { profile: true },
+    const payload = verifyAccessToken(tokens.accessToken)
+    const user = await loadUser(payload.userId)
+
+    const response = NextResponse.json({
+      user: user ? toPublicUser(user) : null,
     })
 
-    if (!user) return NextResponse.json({ user: null }, { status: 200 })
-
-    return NextResponse.json({
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        profile: user.profile,
-      },
-    })
+    return setAuthCookies(response, tokens)
   } catch (error) {
     console.error('[ME]', error)
     return NextResponse.json({ user: null }, { status: 200 })

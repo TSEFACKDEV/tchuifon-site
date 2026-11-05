@@ -1,4 +1,3 @@
-// src/app/api/contact/[id]/read/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
@@ -11,6 +10,14 @@ export async function PATCH(
   if (auth instanceof NextResponse) return auth
 
   const { id } = await params
-  await prisma.contactMessage.update({ where: { id }, data: { isRead: true } })
-  return NextResponse.json({ success: true })
+
+  try {
+    await prisma.contactMessage.update({
+      where: { id },
+      data: { isRead: true },
+    })
+    return NextResponse.json({ success: true })
+  } catch {
+    return NextResponse.json({ error: 'Message introuvable' }, { status: 404 })
+  }
 }

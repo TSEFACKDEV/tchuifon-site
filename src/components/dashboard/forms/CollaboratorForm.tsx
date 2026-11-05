@@ -1,5 +1,5 @@
 'use client'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { FormField, inputClass } from '../FormField'
@@ -13,7 +13,7 @@ const schema = z.object({
   department: z.string().optional(),
   country: z.string().optional(),
   email: z.string().email().optional().or(z.literal('')),
-  website: z.string().optional(),
+  website: z.string().url().optional().or(z.literal('')),
   photoUrl: z.string().optional(),
   researchArea: z.string().optional(),
   googleScholar: z.string().optional(),
@@ -24,10 +24,11 @@ type FormData = z.infer<typeof schema>
 export default function CollaboratorForm({ initialData, onSubmit, loading }: {
   initialData?: Partial<FormData>; onSubmit: (d: FormData) => Promise<void>; loading?: boolean
 }) {
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, control, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: initialData ?? {},
   })
+  const photoUrl = useWatch({ control, name: 'photoUrl' })
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5">
@@ -79,9 +80,9 @@ export default function CollaboratorForm({ initialData, onSubmit, loading }: {
         folder="collaborators"
         accept="image/jpeg,image/png,image/webp"
         label="Photo de profil"
-        currentUrl={watch('photoUrl')}
+        currentUrl={photoUrl}
         onUpload={(url) => setValue('photoUrl', url)}
-        onRemove={() => setValue('photoUrl', undefined)}
+        onRemove={() => setValue('photoUrl', '')}
       />
 
       <div className="flex justify-end pt-2">

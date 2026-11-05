@@ -18,8 +18,9 @@
     "supervisions": "Encadrements",
     "collaborators": "Collaborateurs",
     "hero": {
-      "title": "Dr TCHUIFON Donald Raoul",
+      "title": "Pr. TCHUIFON Donald Raoul",
       "subtitle": "Maître de Conférences — Chimie Inorganique",
+      "bio": "Spécialisé en chimie industrielle avec une expertise reconnue dans les bioénergies, le traitement des eaux usées et la synthèse de matériaux.",
       "downloadCV": "Télécharger CV",
       "learnMore": "En savoir plus"
     },
@@ -69,6 +70,7 @@
       "forgotPassword": "Mot de passe oublié ?",
       "submit": "Se connecter",
       "submitting": "Connexion en cours...",
+      "success": "Connexion réussie",
       "noAccount": "Pas de compte ?",
       "register": "S'inscrire",
       "errors": {
@@ -104,7 +106,11 @@
       "back": "Retour",
       "emailSentTitle": "Email envoyé",
       "emailSent": "Un lien de réinitialisation a été envoyé à votre email",
-      "backToLogin": "Retour à la connexion"
+      "backToLogin": "Retour à la connexion",
+      "errors": {
+        "invalidEmail": "Email invalide",
+        "networkError": "Erreur réseau"
+      }
     },
     "resetPassword": {
       "title": "Créer un nouveau mot de passe",
@@ -115,7 +121,16 @@
       "processing": "Traitement en cours...",
       "back": "Retour",
       "successTitle": "Succès !",
-      "success": "Mot de passe réinitialisé avec succès"
+      "success": "Mot de passe réinitialisé avec succès",
+      "errors": {
+        "minLength": "Au moins 8 caractères",
+        "uppercase": "Au moins une majuscule",
+        "number": "Au moins un chiffre",
+        "special": "Au moins un caractère spécial",
+        "mismatch": "Les mots de passe ne correspondent pas",
+        "invalidToken": "Token invalide",
+        "networkError": "Erreur réseau"
+      }
     }
   },
   "dashboard": {
@@ -184,18 +199,111 @@
       "nameRequired": "Nom requis",
       "invalidEmail": "Email invalide",
       "subjectRequired": "Sujet requis",
-      "messageTooShort": "Message trop court (min. 10 caractères)"
+      "messageTooShort": "Message trop court (min. 10 caractères)",
+      "networkError": "Erreur réseau, veuillez réessayer."
     }
+  },
+  "enums": {
+    "publicationType": {
+      "ARTICLE": "Article",
+      "CONFERENCE": "Conférence",
+      "BOOK_CHAPTER": "Chapitre",
+      "THESIS": "Thèse",
+      "PATENT": "Brevet",
+      "POSTER": "Poster"
+    },
+    "courseLevel": {
+      "LICENCE": "Licence",
+      "MASTER": "Master",
+      "INGENIEUR": "Ingénieur",
+      "DOCTORAT": "Doctorat"
+    },
+    "supervisionLevel": {
+      "INGENIEUR": "Ingénieur",
+      "MASTER_2": "Master 2",
+      "DOCTORAT": "Doctorat",
+      "POST_DOC": "Post-Doc"
+    },
+    "supervisionStatus": {
+      "IN_PROGRESS": "En cours",
+      "COMPLETED": "Terminé",
+      "ABANDONED": "Abandonné"
+    }
+  },
+  "card": {
+    "viewCourse": "Voir le cours",
+    "viewDetails": "Voir les détails",
+    "objectives": "{count, plural, one {# objectif} other {# objectifs}}",
+    "credits": "{count} crédits",
+    "publications": "{count, plural, one {# publication} other {# publications}}",
+    "active": "Actif",
+    "inactive": "Inactif"
+  },
+  "detail": {
+    "back": "Retour",
+    "publication": {
+      "abstract": "Résumé",
+      "keywords": "Mots-clés",
+      "journal": "Journal",
+      "conference": "Conférence",
+      "volume": "Volume",
+      "issue": "Numéro",
+      "pages": "Pages",
+      "publisher": "Éditeur",
+      "doi": "DOI",
+      "pdf": "Télécharger le PDF",
+      "collaborators": "Collaborateurs"
+    },
+    "course": {
+      "description": "Description",
+      "syllabus": "Syllabus",
+      "objectives": "Objectifs pédagogiques",
+      "credits": "Crédits",
+      "hours": "Heures",
+      "semester": "Semestre",
+      "status": "Statut",
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "supervision": {
+      "student": "Étudiant",
+      "description": "Description",
+      "period": "Période",
+      "thesis": "Consulter la thèse / le mémoire",
+      "publications": "Publications associées"
+    },
+    "collaborator": {
+      "country": "Pays",
+      "researchArea": "Domaine de recherche",
+      "links": "Liens",
+      "email": "Email",
+      "website": "Site web",
+      "googleScholar": "Google Scholar",
+      "orcid": "ORCID",
+      "publications": "Publications",
+      "noPublications": "Aucune publication publique pour ce collaborateur."
+    }
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "description": "La page demandée n’existe pas ou a été déplacée.",
+    "backHome": "Retour à l’accueil"
   },
   "footer": {
     "identity": "Identité",
-    "professor": "Pr TCHUIFON Donald Raoul",
+    "professor": "Pr. TCHUIFON Donald Raoul",
     "researcher": "Enseignant-Chercheur",
     "department": "Département de Génie des Procédés",
     "institution": "École Nationale Supérieure Polytechnique de Douala (ENSPD)",
     "navigation": "Navigation",
+    "home": "Accueil",
+    "courses": "Cours dispensés",
+    "publications": "Publications",
+    "supervisions": "Encadrements",
+    "collaborators": "Collaborateurs",
     "contact": "Contact",
-    "copyright": "© {year} Pr TCHUIFON Donald Raoul. Tous droits réservés.",
+    "officeFallback": "PK 17 Douala, Campus ENSPD",
+    "copyright": "© {year} Pr. TCHUIFON Donald Raoul. Tous droits réservés.",
     "website": "ensp-udo.com"
   },
   "common": {

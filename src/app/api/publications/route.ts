@@ -11,7 +11,7 @@ const publicationSchema = z.object({
   journal: z.string().optional(),
   conference: z.string().optional(),
   publicationDate: z.string().optional(),
-  year: z.number().int().optional(),
+  year: z.number().int().nullable().optional(),
   volume: z.string().optional(),
   issue: z.string().optional(),
   pages: z.string().optional(),
@@ -26,6 +26,22 @@ const publicationSchema = z.object({
   collaboratorIds: z.array(z.string()).default([]),
 })
 
+const PUBLICATION_TYPES = [
+  'ARTICLE',
+  'CONFERENCE',
+  'BOOK_CHAPTER',
+  'THESIS',
+  'PATENT',
+  'POSTER',
+] as const
+
+function positiveInt(value: string | null, fallback: number, max?: number) {
+  const parsed = Number(value)
+  if (!Number.isFinite(parsed) || parsed < 1) return fallback
+  const integer = Math.trunc(parsed)
+  return max ? Math.min(max, integer) : integer
+}
+
 // GET /api/publications — liste avec filtres (admin voit tout, public voit published)
 export async function GET(req: NextRequest) {
   try {
@@ -34,26 +50,42 @@ export async function GET(req: NextRequest) {
     const year = searchParams.get('year')
     const keyword = searchParams.get('keyword')
     const all = searchParams.get('all') === 'true'
-    const page = Math.max(1, Number(searchParams.get('page') ?? 1))
-    const limit = Math.min(100, Number(searchParams.get('limit') ?? 10))
+    const page = positiveInt(searchParams.get('page'), 1)
+    const limit = positiveInt(searchParams.get('limit'), 10, 100)
     const skip = (page - 1) * limit
 
     // Pour 'all=true', vérifier que c'est un admin authentifié
     const authUser = all ? getAuthUser(req) : null
     const isAdmin = all && authUser?.role === 'ADMIN'
 
+    if (all && !isAdmin) {
+      return NextResponse.json(
+        { error: authUser ? 'Accès refusé' : 'Non authentifié' },
+        { status: authUser ? 403 : 401 }
+      )
+    }
+
     const where: Record<string, unknown> = isAdmin ? {} : { isPublished: true }
-    if (type) where.type = type
-    if (year) where.year = Number(year)
+
+    if (type && PUBLICATION_TYPES.includes(type as (typeof PUBLICATION_TYPES)[number])) {
+      where.type = type
+    }
+
+    const parsedYear = Number(year)
+    if (year && Number.isInteger(parsedYear)) {
+      where.year = parsedYear
+    }
+
     if (keyword) {
       where.OR = [
         { title: { contains: keyword, mode: 'insensitive' } },
+        { authors: { has: keyword } },
         { keywords: { has: keyword } },
         { abstract: { contains: keyword, mode: 'insensitive' } },
       ]
     }
 
-    const [publications, total] = await Promise.all([
+    const [publications, total, yearRows] = await Promise.all([
       prisma.publication.findMany({
         where,
         include: {
@@ -66,11 +98,27 @@ export async function GET(req: NextRequest) {
         take: limit,
       }),
       prisma.publication.count({ where }),
+      prisma.publication.groupBy({
+        by: ['year'],
+        where: { isPublished: true },
+        _count: { _all: true },
+        orderBy: { year: 'desc' },
+      }),
     ])
+
+    const years = yearRows
+      .map((row) => row.year)
+      .filter((value): value is number => value !== null)
 
     return NextResponse.json({
       data: publications,
-      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        years,
+      },
     })
   } catch (error) {
     console.error('[PUBLICATIONS_GET]', error)

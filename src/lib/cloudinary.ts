@@ -15,6 +15,7 @@ export const ALLOWED_TYPES: Record<string, string[]> = {
   courses: ['application/pdf'],
   cv: ['application/pdf'],
   collaborators: ['image/jpeg', 'image/png', 'image/webp'],
+  slides: ['image/jpeg', 'image/png', 'image/webp'],
 }
 
 // Upload depuis un Buffer (server-side)

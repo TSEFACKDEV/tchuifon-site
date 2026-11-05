@@ -10,7 +10,7 @@ const updateSchema = z.object({
   department: z.string().optional(),
   country: z.string().optional(),
   email: z.string().email().optional().or(z.literal('')),
-  website: z.string().optional(),
+  website: z.string().url().optional().or(z.literal('')),
   photoUrl: z.string().optional(),
   researchArea: z.string().optional(),
   googleScholar: z.string().optional(),
@@ -26,7 +26,10 @@ export async function GET(
     const collaborator = await prisma.collaborator.findUnique({
       where: { id },
       include: {
-        publications: { include: { publication: true } },
+        publications: {
+          where: { publication: { isPublished: true } },
+          include: { publication: true },
+        },
       },
     })
     if (!collaborator) return NextResponse.json({ error: 'Collaborateur introuvable' }, { status: 404 })

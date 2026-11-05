@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { requireAuth } from '@/lib/auth'
+import { requireAuth, getAuthUser } from '@/lib/auth'
 import { z } from 'zod'
 
 const updateSchema = z.object({
   title: z.string().min(1).optional(),
   code: z.string().optional(),
-  level: z.enum(['LICENCE', 'MASTER', 'INGENIEUR', 'DOCTORAT']).optional(),
+  level: z.enum(['LICENCE', 'MASTER', 'INGENIEUR', 'DOCTORAT']).nullable().optional(),
   description: z.string().optional(),
-  credits: z.number().int().optional(),
-  hours: z.number().int().optional(),
+  credits: z.number().int().nullable().optional(),
+  hours: z.number().int().nullable().optional(),
   semester: z.string().optional(),
   syllabus: z.string().optional(),
   objectives: z.array(z.string()).optional(),
@@ -22,7 +22,13 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    const course = await prisma.course.findUnique({ where: { id } })
+    const authUser = getAuthUser(req)
+    const course = await prisma.course.findFirst({
+      where: {
+        id,
+        ...(authUser?.role === 'ADMIN' ? {} : { isActive: true }),
+      },
+    })
     if (!course) return NextResponse.json({ error: 'Cours introuvable' }, { status: 404 })
     return NextResponse.json(course)
   } catch {

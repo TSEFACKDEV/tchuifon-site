@@ -18,8 +18,9 @@
     "supervisions": "Supervisions",
     "collaborators": "Collaborators",
     "hero": {
-      "title": "Dr TCHUIFON Donald Raoul",
+      "title": "Pr. TCHUIFON Donald Raoul",
       "subtitle": "Senior Lecturer — Inorganic Chemistry",
+      "bio": "Specialized in industrial chemistry with recognized expertise in bioenergies, wastewater treatment and material synthesis.",
       "downloadCV": "Download CV",
       "learnMore": "Learn More"
     },
@@ -69,6 +70,7 @@
       "forgotPassword": "Forgot password?",
       "submit": "Sign In",
       "submitting": "Signing in...",
+      "success": "Signed in successfully",
       "noAccount": "Don't have an account?",
       "register": "Sign Up",
       "errors": {
@@ -104,7 +106,11 @@
       "back": "Back",
       "emailSentTitle": "Email Sent",
       "emailSent": "A reset link has been sent to your email",
-      "backToLogin": "Back to Login"
+      "backToLogin": "Back to Login",
+      "errors": {
+        "invalidEmail": "Invalid email",
+        "networkError": "Network error"
+      }
     },
     "resetPassword": {
       "title": "Create New Password",
@@ -115,7 +121,16 @@
       "processing": "Processing...",
       "back": "Back",
       "successTitle": "Success!",
-      "success": "Password reset successfully"
+      "success": "Password reset successfully",
+      "errors": {
+        "minLength": "At least 8 characters",
+        "uppercase": "At least one uppercase letter",
+        "number": "At least one digit",
+        "special": "At least one special character",
+        "mismatch": "Passwords do not match",
+        "invalidToken": "Invalid token",
+        "networkError": "Network error"
+      }
     }
   },
   "dashboard": {
@@ -184,18 +199,111 @@
       "nameRequired": "Name is required",
       "invalidEmail": "Invalid email",
       "subjectRequired": "Subject is required",
-      "messageTooShort": "Message too short (min. 10 characters)"
+      "messageTooShort": "Message too short (min. 10 characters)",
+      "networkError": "Network error, please try again."
     }
+  },
+  "enums": {
+    "publicationType": {
+      "ARTICLE": "Article",
+      "CONFERENCE": "Conference",
+      "BOOK_CHAPTER": "Book chapter",
+      "THESIS": "Thesis",
+      "PATENT": "Patent",
+      "POSTER": "Poster"
+    },
+    "courseLevel": {
+      "LICENCE": "Bachelor",
+      "MASTER": "Master",
+      "INGENIEUR": "Engineer",
+      "DOCTORAT": "Doctorate"
+    },
+    "supervisionLevel": {
+      "INGENIEUR": "Engineer",
+      "MASTER_2": "Master 2",
+      "DOCTORAT": "Doctorate",
+      "POST_DOC": "Post-Doc"
+    },
+    "supervisionStatus": {
+      "IN_PROGRESS": "In progress",
+      "COMPLETED": "Completed",
+      "ABANDONED": "Abandoned"
+    }
+  },
+  "card": {
+    "viewCourse": "View course",
+    "viewDetails": "View details",
+    "objectives": "{count, plural, one {# objective} other {# objectives}}",
+    "credits": "{count} credits",
+    "publications": "{count, plural, one {# publication} other {# publications}}",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "detail": {
+    "back": "Back",
+    "publication": {
+      "abstract": "Abstract",
+      "keywords": "Keywords",
+      "journal": "Journal",
+      "conference": "Conference",
+      "volume": "Volume",
+      "issue": "Issue",
+      "pages": "Pages",
+      "publisher": "Publisher",
+      "doi": "DOI",
+      "pdf": "Download PDF",
+      "collaborators": "Collaborators"
+    },
+    "course": {
+      "description": "Description",
+      "syllabus": "Syllabus",
+      "objectives": "Learning objectives",
+      "credits": "Credits",
+      "hours": "Hours",
+      "semester": "Semester",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "supervision": {
+      "student": "Student",
+      "description": "Description",
+      "period": "Period",
+      "thesis": "View thesis / dissertation",
+      "publications": "Related publications"
+    },
+    "collaborator": {
+      "country": "Country",
+      "researchArea": "Research area",
+      "links": "Links",
+      "email": "Email",
+      "website": "Website",
+      "googleScholar": "Google Scholar",
+      "orcid": "ORCID",
+      "publications": "Publications",
+      "noPublications": "No public publication for this collaborator."
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The requested page does not exist or has been moved.",
+    "backHome": "Back to home"
   },
   "footer": {
     "identity": "Identity",
-    "professor": "Prof TCHUIFON Donald Raoul",
+    "professor": "Prof. TCHUIFON Donald Raoul",
     "researcher": "Lecturer and Researcher",
     "department": "Department of Process Engineering",
     "institution": "National Advanced School of Engineering of Douala (ENSPD)",
     "navigation": "Navigation",
+    "home": "Home",
+    "courses": "Courses",
+    "publications": "Publications",
+    "supervisions": "Supervisions",
+    "collaborators": "Collaborators",
     "contact": "Contact",
-    "copyright": "© {year} Prof TCHUIFON Donald Raoul. All rights reserved.",
+    "officeFallback": "PK 17 Douala, ENSPD Campus",
+    "copyright": "© {year} Prof. TCHUIFON Donald Raoul. All rights reserved.",
     "website": "ensp-udo.com"
   },
   "common": {

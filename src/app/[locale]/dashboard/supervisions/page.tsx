@@ -7,22 +7,21 @@ import ConfirmDialog from '@/components/dashboard/ConfirmDialog'
 import SupervisionForm from '@/components/dashboard/forms/SupervisionForm'
 import { Button } from '@/components/ui/Button'
 import { toast } from '@/components/ui/Toast'
+import { apiFetch } from '@/lib/client-api'
 import { RiAddLine, RiEditLine, RiDeleteBinLine, RiExternalLinkLine } from 'react-icons/ri'
 import { clsx } from 'clsx'
-import { z } from 'zod'
 
-const supervisionSchema = z.object({
-  studentName: z.string().min(1),
-  level: z.enum(['INGENIEUR', 'MASTER_2', 'DOCTORAT', 'POST_DOC']).optional(),
-  topic: z.string().min(1),
-  description: z.string().optional(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-  status: z.enum(['IN_PROGRESS', 'COMPLETED', 'ABANDONED']),
-  thesisUrl: z.string().optional(),
-})
-type SupervisionFormData = z.infer<typeof supervisionSchema>
-type Supervision = SupervisionFormData & { id: string; startDate?: string; endDate?: string }
+type SupervisionFormData = {
+  studentName: string
+  level?: 'INGENIEUR' | 'MASTER_2' | 'DOCTORAT' | 'POST_DOC' | null
+  topic: string
+  description?: string
+  startDate?: string
+  endDate?: string
+  status: 'IN_PROGRESS' | 'COMPLETED' | 'ABANDONED'
+  thesisUrl?: string
+}
+type Supervision = SupervisionFormData & { id: string }
 
 const STATUS_LABELS: Record<string, string> = { IN_PROGRESS: 'En cours', COMPLETED: 'Terminé', ABANDONED: 'Abandonné' }
 const STATUS_COLORS: Record<string, string> = {
@@ -42,7 +41,8 @@ export default function DashboardSupervisionsPage() {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/supervisions')
+      const res = await apiFetch('/api/supervisions')
+      if (!res.ok) { toast.error('Erreur de chargement'); return }
       const data = await res.json()
       setItems(data.data ?? [])
     } catch { toast.error('Erreur de chargement') }
@@ -60,7 +60,7 @@ export default function DashboardSupervisionsPage() {
     try {
       const url = editItem ? `/api/supervisions/${editItem.id}` : '/api/supervisions'
       const method = editItem ? 'PUT' : 'POST'
-      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+      const res = await apiFetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
       if (!res.ok) { const j = await res.json(); toast.error(j.error ?? 'Erreur'); return }
       toast.success(editItem ? 'Encadrement mis à jour' : 'Encadrement créé')
       closeModal(); load()
@@ -72,7 +72,7 @@ export default function DashboardSupervisionsPage() {
     if (!deleteId) return
     setDeleting(true)
     try {
-      const res = await fetch(`/api/supervisions/${deleteId}`, { method: 'DELETE' })
+      const res = await apiFetch(`/api/supervisions/${deleteId}`, { method: 'DELETE' })
       if (!res.ok) { const j = await res.json(); toast.error(j.error ?? 'Erreur'); return }
       toast.success('Encadrement supprimé')
       setDeleteId(null); load()

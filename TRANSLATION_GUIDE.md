@@ -17,22 +17,23 @@ src/
 ├── i18n/
 │   ├── routing.ts              # Configuration des locales
 │   ├── request.ts              # Accès aux traductions côté serveur
+│   ├── navigation.ts           # Link/useRouter localisés
 │   └── locales/
 │       ├── fr.json             # Traductions françaises
 │       └── en.json             # Traductions anglaises
 ├── app/
-│   ├── page.tsx                # Redirection vers locale par défaut
 │   ├── [locale]/               # Dossier de paramètre locale
-│   │   ├── layout.tsx          # Layout racine localisé
+│   │   ├── layout.tsx          # Layout racine localisé (html/body)
 │   │   ├── (public)/           # Pages publiques
 │   │   ├── (auth)/             # Pages d'authentification
 │   │   └── dashboard/          # Pages du tableau de bord
-│   └── api/                    # Routes API (pas de locale)
+│   ├── api/                    # Routes API (pas de locale)
+│   └── global-not-found.tsx    # 404 globale
 ├── components/
 │   ├── LanguageSwitcher.tsx    # Sélecteur de langue
 │   ├── public/                 # Composants publics
 │   └── dashboard/              # Composants du dashboard
-└── middleware.ts               # Gestion du routing multilingue
+└── middleware.ts               # Routing multilingue + session
 
 ```
 
@@ -93,14 +94,19 @@ Les traductions sont organisées par sections (namespaces) dans `fr.json` et `en
 
 ### **auth**
 - `login.*` - Page de connexion
-- `register.*` - Page d'inscription
 - `forgotPassword.*` - Réinitialisation du mot de passe
 - `resetPassword.*` - Créer un nouveau mot de passe
+- `register.*` - Réservé pour une future page d'inscription (non implémentée)
+
+### **enums**, **card**, **detail**
+- Libellés des énumérations (types de publication, niveaux, statuts)
+- Textes des cartes publiques et des pages de détail
 
 ### **dashboard**
 - `title`, `overview`, `courses`, `publications`, `supervisions`, `collaborators`, `users`, `messages`, `profile`
 - `add`, `edit`, `delete`, `cancel`, `save`, `loading`, `noData`
 - Actions et messages d'erreur
+- ⚠️ Le dashboard est actuellement rédigé en français ; ces clés sont réservées à une future traduction de l'administration.
 
 ### **contact**
 - `pageTitle`, `pageSubtitle`
@@ -157,7 +163,7 @@ export default function MyComponent() {
 
 - `http://localhost:3000/fr/courses` → Page des cours en français
 - `http://localhost:3000/en/courses` → Page des cours en anglais
-- `http://localhost:3000/` → Redirige vers `/fr` (locale par défaut)
+- `http://localhost:3000/` → Redirige vers la locale par défaut via le middleware
 
 ### Changer de langue
 
@@ -222,6 +228,7 @@ Le fichier `middleware.ts` gère automatiquement :
 - ✅ Redirection vers locale appropriée
 - ✅ Validation des locales supportées
 - ✅ Exclusion des routes statiques (API, images, etc.)
+- ✅ Renouvellement transparent de la session (access token expiré)
 
 ---
 

@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useTranslations } from 'next-intl'
 import { toast } from '@/components/ui/Toast'
+import { usePublicProfile } from '@/components/public/ProfileProvider'
 import { RiMailLine, RiPhoneLine, RiMapPinLine, RiSendPlaneLine, RiCheckLine } from 'react-icons/ri'
 
 type FormData = {
@@ -17,7 +18,12 @@ type FormData = {
 
 export default function ContactPage() {
   const t = useTranslations('contact')
+  const profile = usePublicProfile()
   const [sent, setSent] = useState(false)
+
+  const email = profile?.email || 'tchuifondonald@yahoo.fr'
+  const phone = profile?.phone || '+237 674 78 00 94'
+  const office = profile?.officeLocation || t('officeAddress')
 
   const schema = useMemo(
     () =>
@@ -35,15 +41,19 @@ export default function ContactPage() {
   })
 
   const onSubmit = async (data: FormData) => {
-    const res = await fetch('/api/contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    })
-    const json = await res.json()
-    if (!res.ok) { toast.error(json.error); return }
-    setSent(true)
-    reset()
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      const json = await res.json()
+      if (!res.ok) { toast.error(json.error ?? t('errors.networkError')); return }
+      setSent(true)
+      reset()
+    } catch {
+      toast.error(t('errors.networkError'))
+    }
   }
 
   return (
@@ -57,9 +67,9 @@ export default function ContactPage() {
         {/* Infos contact */}
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 }} className="md:col-span-2 space-y-4">
           {[
-            { icon: RiMailLine, label: t('emailLabel'), value: 'tchuifondonald@yahoo.fr', href: 'mailto:tchuifondonald@yahoo.fr' },
-            { icon: RiPhoneLine, label: t('phoneLabel'), value: '+237 674 78 00 94', href: 'tel:+237674780094' },
-            { icon: RiMapPinLine, label: t('officeLabel'), value: t('officeAddress'), href: null },
+            { icon: RiMailLine, label: t('emailLabel'), value: email, href: `mailto:${email}` },
+            { icon: RiPhoneLine, label: t('phoneLabel'), value: phone, href: `tel:${phone.replace(/\s/g, '')}` },
+            { icon: RiMapPinLine, label: t('officeLabel'), value: office, href: null },
           ].map(({ icon: Icon, label, value, href }) => (
             <div key={label} className="flex items-start gap-4 p-5 bg-white rounded-2xl border border-slate-200">
               <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center shrink-0">

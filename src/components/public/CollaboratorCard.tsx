@@ -1,6 +1,7 @@
 'use client'
 import { motion } from 'framer-motion'
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { RiMapPinLine, RiExternalLinkLine, RiUserLine } from 'react-icons/ri'
 
@@ -16,6 +17,8 @@ type Collaborator = {
 }
 
 export default function CollaboratorCard({ collaborator, index = 0 }: { collaborator: Collaborator; index?: number }) {
+  const card = useTranslations('card')
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.96 }}
@@ -72,7 +75,7 @@ export default function CollaboratorCard({ collaborator, index = 0 }: { collabor
 
         {/* Footer */}
         <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs text-slate-400">
-          <span>{collaborator.publications?.length ?? 0} publication(s)</span>
+          <span>{card('publications', { count: collaborator.publications?.length ?? 0 })}</span>
           <RiExternalLinkLine className="w-3.5 h-3.5 group-hover:text-primary-500 transition-colors" />
         </div>
       </Link>

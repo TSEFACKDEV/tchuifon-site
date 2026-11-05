@@ -5,6 +5,7 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader'
 import ConfirmDialog from '@/components/dashboard/ConfirmDialog'
 import { Button } from '@/components/ui/Button'
 import { toast } from '@/components/ui/Toast'
+import { apiFetch } from '@/lib/client-api'
 import { RiMailLine, RiMailOpenLine, RiDeleteBinLine, RiLoader4Line } from 'react-icons/ri'
 import { clsx } from 'clsx'
 
@@ -29,7 +30,8 @@ export default function DashboardMessagesPage() {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/contact')
+      const res = await apiFetch('/api/contact')
+      if (!res.ok) { toast.error('Erreur de chargement'); return }
       const data = await res.json()
       setItems(data.data ?? [])
     } catch { toast.error('Erreur de chargement') }
@@ -41,7 +43,8 @@ export default function DashboardMessagesPage() {
   const markAsRead = async (id: string) => {
     setMarkingRead(id)
     try {
-      await fetch(`/api/contact/${id}/read`, { method: 'PATCH' })
+      const res = await apiFetch(`/api/contact/${id}/read`, { method: 'PATCH' })
+      if (!res.ok) { toast.error('Erreur'); return }
       setItems(prev => prev.map(m => m.id === id ? { ...m, isRead: true } : m))
     } catch { toast.error('Erreur') }
     finally { setMarkingRead(null) }
@@ -51,7 +54,7 @@ export default function DashboardMessagesPage() {
     if (!deleteId) return
     setDeleting(true)
     try {
-      const res = await fetch(`/api/contact/${deleteId}`, { method: 'DELETE' })
+      const res = await apiFetch(`/api/contact/${deleteId}`, { method: 'DELETE' })
       if (!res.ok) { toast.error('Erreur de suppression'); return }
       toast.success('Message supprimé')
       setDeleteId(null); load()

@@ -1,42 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { clearAuthCookies } from '@/lib/session'
 
 export async function POST(req: NextRequest) {
-  try {
-    const refreshToken = req.cookies.get('refresh_token')?.value
+  const refreshToken = req.cookies.get('refresh_token')?.value
 
-    // Supprimer le refresh token en base si présent
-    if (refreshToken) {
+  if (refreshToken) {
+    try {
       await prisma.refreshToken.deleteMany({
         where: { token: refreshToken },
       })
+    } catch (error) {
+      // Même si la révocation en base échoue, les cookies doivent être effacés.
+      console.error('[LOGOUT]', error)
     }
-
-    const response = NextResponse.json({ success: true })
-
-    // Effacer les deux cookies
-    response.cookies.set('access_token', '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 0,
-      path: '/',
-    })
-
-    response.cookies.set('refresh_token', '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 0,
-      path: '/',
-    })
-
-    return response
-  } catch (error) {
-    console.error('[LOGOUT]', error)
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    )
   }
+
+  return clearAuthCookies(NextResponse.json({ success: true }))
 }

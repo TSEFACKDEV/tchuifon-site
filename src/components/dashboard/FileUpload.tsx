@@ -3,14 +3,15 @@ import { useState, useRef, useEffect } from 'react'
 import { clsx } from 'clsx'
 import { RiUploadCloud2Line, RiFileLine, RiDeleteBinLine, RiLoader4Line } from 'react-icons/ri'
 import { toast } from '@/components/ui/Toast'
+import { apiFetch } from '@/lib/client-api'
 import Image from 'next/image'
 
 type Props = {
-  folder: 'profiles' | 'publications' | 'courses' | 'cv' | 'collaborators'
+  folder: 'profiles' | 'publications' | 'courses' | 'cv' | 'collaborators' | 'slides'
   accept?: string
   label?: string
-  currentUrl?: string
-  onUpload: (url: string) => void
+  currentUrl?: string | null
+  onUpload: (url: string, publicId?: string) => void
   onRemove?: () => void
 }
 
@@ -30,14 +31,6 @@ export default function FileUpload({
     }
   }, [currentUrl, preview, uploading]) // Dépendances correctes
 
-  // Extraire le publicId depuis une URL Cloudinary
-  function extractPublicId(url: string): string | null {
-    try {
-      const match = url.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[^.]+)?$/)
-      return match?.[1] ?? null
-    } catch { return null }
-  }
-
   const handleFile = async (file: File) => {
     setUploading(true)
     try {
@@ -45,7 +38,7 @@ export default function FileUpload({
       formData.append('file', file)
       formData.append('folder', folder)
 
-      const res = await fetch('/api/upload', {
+      const res = await apiFetch('/api/upload', {
         method: 'POST',
         credentials: 'include',
         body: formData,
@@ -57,21 +50,10 @@ export default function FileUpload({
         return
       }
 
-      if (currentUrl) {
-        const oldPublicId = extractPublicId(currentUrl)
-        if (oldPublicId) {
-          const resourceType = (folder === 'publications' || folder === 'cv') ? 'raw' : 'image'
-          await fetch('/api/upload', {
-            method: 'DELETE',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ publicId: oldPublicId, resourceType }),
-          }).catch(() => { /* non bloquant */ })
-        }
-      }
-
+      // Ne supprime pas l'ancien fichier ici : l'utilisateur peut annuler
+      // le formulaire, et l'enregistrement pointerait alors vers un fichier absent.
       setPreview(data.url)
-      onUpload(data.url)
+      onUpload(data.url, data.publicId)
       toast.success('Fichier uploadé ✓')
     } catch {
       toast.error('Erreur lors de l\'upload')

@@ -7,6 +7,7 @@ import ConfirmDialog from '@/components/dashboard/ConfirmDialog'
 import PublicationForm from '@/components/dashboard/forms/PublicationForm'
 import { Button } from '@/components/ui/Button'
 import { toast } from '@/components/ui/Toast'
+import { apiFetch } from '@/lib/client-api'
 import { RiAddLine, RiEditLine, RiDeleteBinLine, RiFilePdfLine, RiEyeLine, RiEyeOffLine } from 'react-icons/ri'
 import { clsx } from 'clsx'
 
@@ -51,7 +52,8 @@ export default function DashboardPublicationsPage() {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/publications?all=true&limit=100')
+      const res = await apiFetch('/api/publications?all=true&limit=100')
+      if (!res.ok) { toast.error('Erreur de chargement'); return }
       const data = await res.json()
       setItems(data.data ?? [])
     } catch { toast.error('Erreur de chargement') }
@@ -69,7 +71,7 @@ export default function DashboardPublicationsPage() {
     try {
       const url = editItem ? `/api/publications/${editItem.id}` : '/api/publications'
       const method = editItem ? 'PUT' : 'POST'
-      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+      const res = await apiFetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
       if (!res.ok) { const j = await res.json(); toast.error(j.error ?? 'Erreur'); return }
       toast.success(editItem ? 'Publication mise à jour' : 'Publication créée')
       closeModal(); load()
@@ -81,7 +83,7 @@ export default function DashboardPublicationsPage() {
     if (!deleteId) return
     setDeleting(true)
     try {
-      const res = await fetch(`/api/publications/${deleteId}`, { method: 'DELETE' })
+      const res = await apiFetch(`/api/publications/${deleteId}`, { method: 'DELETE' })
       if (!res.ok) { const j = await res.json(); toast.error(j.error ?? 'Erreur'); return }
       toast.success('Publication supprimée')
       setDeleteId(null); load()
@@ -94,7 +96,7 @@ export default function DashboardPublicationsPage() {
       key: 'title', label: 'Titre', render: (row: Publication) => (
         <div className="max-w-xs">
           <p className="font-medium text-slate-900 truncate">{row.title ?? '—'}</p>
-          <p className="text-xs text-slate-400 truncate">{row.authors.slice(0, 2).join(', ')}{row.authors.length > 2 ? ' …' : ''}</p>
+          <p className="text-xs text-slate-400 truncate">{row.authors.filter(Boolean).slice(0, 2).join(', ')}{row.authors.filter(Boolean).length > 2 ? ' …' : ''}</p>
         </div>
       ),
     },
@@ -108,7 +110,7 @@ export default function DashboardPublicationsPage() {
     { key: 'year', label: 'Année', render: (row: Publication) => <span className="text-slate-600">{row.year ?? '—'}</span> },
     {
       key: 'source', label: 'Source', render: (row: Publication) => (
-        <span className="text-sm text-slate-500 truncate max-w-40 block">{row.journal ?? row.conference ?? '—'}</span>
+        <span className="text-sm text-slate-500 truncate max-w-40 block">{row.journal || row.conference || '—'}</span>
       ),
     },
     {

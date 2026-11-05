@@ -1,6 +1,7 @@
 'use client'
 import { motion } from 'framer-motion'
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import { RiBookOpenLine, RiTimeLine, RiMedalLine, RiArrowRightLine } from 'react-icons/ri'
 import { clsx } from 'clsx'
 
@@ -9,13 +10,6 @@ const levelColors: Record<string, string> = {
   MASTER: 'bg-blue-50 text-blue-700 border-blue-100',
   INGENIEUR: 'bg-amber-50 text-amber-700 border-amber-100',
   DOCTORAT: 'bg-purple-50 text-purple-700 border-purple-100',
-}
-
-const levelLabels: Record<string, string> = {
-  LICENCE: 'Licence',
-  MASTER: 'Master',
-  INGENIEUR: 'Ingénieur',
-  DOCTORAT: 'Doctorat',
 }
 
 type Course = {
@@ -32,6 +26,9 @@ type Course = {
 }
 
 export default function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
+  const t = useTranslations('enums')
+  const card = useTranslations('card')
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -44,7 +41,7 @@ export default function CourseCard({ course, index = 0 }: { course: Course; inde
           <div className="flex items-center gap-2 flex-wrap">
             {course.level && (
               <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium border ${levelColors[course.level] ?? ''}`}>
-                {levelLabels[course.level] ?? course.level}
+                {t(`courseLevel.${course.level}`)}
               </span>
             )}
             {course.code && (
@@ -57,7 +54,7 @@ export default function CourseCard({ course, index = 0 }: { course: Course; inde
             'text-xs px-2 py-1 rounded-full font-medium',
             course.isActive ? 'bg-green-50 text-green-700' : 'bg-slate-100 text-slate-400'
           )}>
-            {course.isActive ? 'Actif' : 'Inactif'}
+            {course.isActive ? card('active') : card('inactive')}
           </span>
         </div>
 
@@ -89,7 +86,7 @@ export default function CourseCard({ course, index = 0 }: { course: Course; inde
           {course.credits && (
             <div className="flex items-center gap-1.5">
               <RiMedalLine className="w-3.5 h-3.5" />
-              {course.credits} crédits
+              {card('credits', { count: course.credits })}
             </div>
           )}
           {course.semester && (
@@ -100,10 +97,10 @@ export default function CourseCard({ course, index = 0 }: { course: Course; inde
         {/* Footer */}
         <div className="flex items-center justify-between pt-3 border-t border-slate-100">
           <p className="text-xs text-slate-400">
-            {course.objectives.length} objectif{course.objectives.length > 1 ? 's' : ''}
+            {card('objectives', { count: course.objectives.length })}
           </p>
           <span className="flex items-center gap-1 text-xs font-medium text-primary-600 group-hover:gap-2 transition-all">
-            Voir le cours <RiArrowRightLine className="w-3.5 h-3.5" />
+            {card('viewCourse')} <RiArrowRightLine className="w-3.5 h-3.5" />
           </span>
         </div>
       </Link>

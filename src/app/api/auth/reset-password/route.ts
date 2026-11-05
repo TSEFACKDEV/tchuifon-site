@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { clearAuthCookies } from '@/lib/session'
 import bcrypt from 'bcrypt'
+import crypto from 'crypto'
 import { z } from 'zod'
 
 const schema = z.object({
@@ -26,11 +28,11 @@ export async function POST(req: NextRequest) {
     }
 
     const { token, password } = parsed.data
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex')
 
-    // Trouver l'utilisateur avec ce token valide
     const user = await prisma.user.findFirst({
       where: {
-        resetToken: token,
+        resetToken: hashedToken,
         resetTokenExp: { gt: new Date() },
       },
     })
@@ -42,10 +44,9 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Hasher le nouveau mot de passe
     const hashed = await bcrypt.hash(password, 12)
 
-    // Mettre à jour + invalider le token + révoquer tous les refresh tokens
+    // Met à jour le mot de passe, invalide le token et révoque toutes les sessions.
     await prisma.$transaction([
       prisma.user.update({
         where: { id: user.id },
@@ -60,9 +61,12 @@ export async function POST(req: NextRequest) {
       }),
     ])
 
-    return NextResponse.json({
-      message: 'Mot de passe réinitialisé avec succès.',
-    })
+    // Les cookies d'une éventuelle session en cours doivent aussi être effacés.
+    return clearAuthCookies(
+      NextResponse.json({
+        message: 'Mot de passe réinitialisé avec succès.',
+      })
+    )
   } catch (error) {
     console.error('[RESET_PASSWORD]', error)
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 })

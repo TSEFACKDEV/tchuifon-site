@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getTranslations } from 'next-intl/server'
-import type { AbstractIntlMessages } from 'next-intl'
+import { getMessages, getTranslations } from 'next-intl/server'
 import '../globals.css'
 import { ToastContainer } from '@/components/ui/Toast'
 import { routing } from '@/i18n/routing'
@@ -37,8 +36,8 @@ export default async function RootLayout({ children, params }: Props) {
     notFound()
   }
 
-  // Charger les messages pour la locale
-  const messages = ((await import(`@/i18n/locales/${locale}.json`)) as { default: AbstractIntlMessages }).default
+  // getMessages() passe par getRequestConfig et respecte donc la locale de l'URL.
+  const messages = await getMessages()
 
   return (
     <html lang={locale}>

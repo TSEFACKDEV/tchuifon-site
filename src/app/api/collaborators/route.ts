@@ -29,6 +29,7 @@ export async function GET(req: NextRequest) {
       where,
       include: {
         publications: {
+          where: { publication: { isPublished: true } },
           include: {
             publication: {
               select: { id: true, title: true, year: true, slug: true },

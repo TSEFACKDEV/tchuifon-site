@@ -1,13 +1,13 @@
 'use client'
 import { useTransition } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
 import { useLocale } from 'next-intl'
+import { usePathname, useRouter } from '@/i18n/navigation'
 import { clsx } from 'clsx'
 
 const LANGUAGES = [
   { code: 'fr', label: 'Français', flag: '🇫🇷' },
   { code: 'en', label: 'English', flag: '🇬🇧' },
-]
+] as const
 
 export default function LanguageSwitcher() {
   const router = useRouter()
@@ -15,11 +15,12 @@ export default function LanguageSwitcher() {
   const locale = useLocale()
   const [isPending, startTransition] = useTransition()
 
-  const handleLanguageChange = (newLocale: string) => {
-    // Remplacer la locale dans le chemin
-    const newPathname = pathname.replace(`/${locale}`, `/${newLocale}`)
+  const handleLanguageChange = (newLocale: (typeof LANGUAGES)[number]['code']) => {
+    if (newLocale === locale) return
     startTransition(() => {
-      router.push(newPathname)
+      // Conserve les éventuels paramètres de requête et le hash.
+      const target = `${pathname}${window.location.search}${window.location.hash}`
+      router.replace(target, { locale: newLocale })
     })
   }
 

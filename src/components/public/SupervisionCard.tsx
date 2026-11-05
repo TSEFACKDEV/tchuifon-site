@@ -1,20 +1,14 @@
 'use client'
 import { motion } from 'framer-motion'
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import { RiUserLine, RiCalendarLine, RiArrowRightLine } from 'react-icons/ri'
 import { clsx } from 'clsx'
 
-const levelLabels: Record<string, string> = {
-  INGENIEUR: 'Ingénieur',
-  MASTER_2: 'Master 2',
-  DOCTORAT: 'Doctorat',
-  POST_DOC: 'Post-Doc',
-}
-
-const statusConfig: Record<string, { label: string; class: string }> = {
-  IN_PROGRESS: { label: 'En cours', class: 'bg-blue-50 text-blue-700' },
-  COMPLETED: { label: 'Terminé', class: 'bg-green-50 text-green-700' },
-  ABANDONED: { label: 'Abandonné', class: 'bg-slate-100 text-slate-500' },
+const statusClasses: Record<string, string> = {
+  IN_PROGRESS: 'bg-blue-50 text-blue-700',
+  COMPLETED: 'bg-green-50 text-green-700',
+  ABANDONED: 'bg-slate-100 text-slate-500',
 }
 
 type Supervision = {
@@ -29,7 +23,8 @@ type Supervision = {
 }
 
 export default function SupervisionCard({ supervision, index = 0 }: { supervision: Supervision; index?: number }) {
-  const status = statusConfig[supervision.status] ?? statusConfig.IN_PROGRESS
+  const t = useTranslations('enums')
+  const card = useTranslations('card')
   const startYear = supervision.startDate ? new Date(supervision.startDate).getFullYear() : null
   const endYear = supervision.endDate ? new Date(supervision.endDate).getFullYear() : null
 
@@ -45,11 +40,14 @@ export default function SupervisionCard({ supervision, index = 0 }: { supervisio
           <div className="flex items-center gap-2">
             {supervision.level && (
               <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-primary-50 text-primary-700 border border-primary-100">
-                {levelLabels[supervision.level] ?? supervision.level}
+                {t(`supervisionLevel.${supervision.level}`)}
               </span>
             )}
-            <span className={clsx('px-2.5 py-1 rounded-lg text-xs font-medium', status.class)}>
-              {status.label}
+            <span className={clsx(
+              'px-2.5 py-1 rounded-lg text-xs font-medium',
+              statusClasses[supervision.status] ?? 'bg-slate-100 text-slate-600'
+            )}>
+              {t(`supervisionStatus.${supervision.status}`)}
             </span>
           </div>
           {(startYear || endYear) && (
@@ -84,7 +82,7 @@ export default function SupervisionCard({ supervision, index = 0 }: { supervisio
         {/* Footer */}
         <div className="flex items-center justify-end pt-3 border-t border-slate-100">
           <span className="flex items-center gap-1 text-xs font-medium text-primary-600 group-hover:gap-2 transition-all">
-            Voir les détails <RiArrowRightLine className="w-3.5 h-3.5" />
+            {card('viewDetails')} <RiArrowRightLine className="w-3.5 h-3.5" />
           </span>
         </div>
       </Link>

@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
-import { useForm, useFieldArray } from 'react-hook-form'
+import { useForm, useFieldArray, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import DashboardHeader from '@/components/dashboard/DashboardHeader'
@@ -8,6 +8,7 @@ import { FormField, inputClass, textareaClass } from '@/components/dashboard/For
 import FileUpload from '@/components/dashboard/FileUpload'
 import { Button } from '@/components/ui/Button'
 import { toast } from '@/components/ui/Toast'
+import { apiFetch } from '@/lib/client-api'
 import { RiAddLine, RiDeleteBinLine, RiLoader4Line } from 'react-icons/ri'
 
 const schema = z.object({
@@ -35,18 +36,22 @@ export default function DashboardProfilePage() {
   const [loadingProfile, setLoadingProfile] = useState(true)
   const [saving, setSaving] = useState(false)
 
-  const { register, handleSubmit, setValue, watch, control, reset, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, control, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { specializations: [], degrees: [] },
   })
+
+  const photoUrl = useWatch({ control, name: 'photoUrl' })
+  const cvUrl = useWatch({ control, name: 'cvUrl' })
 
   const { fields: specFields, append: addSpec, remove: removeSpec } = useFieldArray({ control, name: 'specializations' })
   const { fields: degreeFields, append: addDegree, remove: removeDegree } = useFieldArray({ control, name: 'degrees' })
 
   const loadProfile = useCallback(async () => {
     try {
-      const res = await fetch('/api/profile')
-      if (!res.ok) return
+      const res = await apiFetch('/api/profile')
+      if (res.status === 404) return
+      if (!res.ok) { toast.error('Impossible de charger le profil'); return }
       const data = await res.json()
       reset({
         ...data,
@@ -67,7 +72,7 @@ export default function DashboardProfilePage() {
         specializations: data.specializations.map(s => s.value).filter(Boolean),
         degrees: data.degrees.map(d => d.value).filter(Boolean),
       }
-      const res = await fetch('/api/profile', {
+      const res = await apiFetch('/api/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -107,13 +112,13 @@ export default function DashboardProfilePage() {
           </FormField>
           <div className="grid sm:grid-cols-2 gap-6">
             <FileUpload folder="profiles" accept="image/jpeg,image/png,image/webp" label="Photo de profil"
-              currentUrl={watch('photoUrl')}
+              currentUrl={photoUrl}
               onUpload={(url) => setValue('photoUrl', url)}
-              onRemove={() => setValue('photoUrl', undefined)} />
+              onRemove={() => setValue('photoUrl', '')} />
             <FileUpload folder="cv" accept="application/pdf" label="CV (PDF)"
-              currentUrl={watch('cvUrl')}
+              currentUrl={cvUrl}
               onUpload={(url) => setValue('cvUrl', url)}
-              onRemove={() => setValue('cvUrl', undefined)} />
+              onRemove={() => setValue('cvUrl', '')} />
           </div>
         </section>
 

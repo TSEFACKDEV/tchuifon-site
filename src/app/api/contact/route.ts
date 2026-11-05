@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 import { transporter } from '@/lib/mail'
@@ -35,35 +35,40 @@ export async function POST(req: NextRequest) {
       data: { name, email, subject, message },
     })
 
-    // Notifier par email (opération secondaire — ne bloque pas la réponse)
+    // Notifier par email après l'envoi de la réponse HTTP.
+    // `after` garantit que la tâche n'est pas tuée avec la requête (Vercel/serverless).
     const safeName = escapeHtml(name)
     const safeEmail = escapeHtml(email)
     const safeSubject = escapeHtml(subject)
     const safeMessage = escapeHtml(message)
 
-    transporter.sendMail({
-      from: `"Site Dr Tchuifon" <${process.env.SMTP_USER}>`,
-      to: process.env.SMTP_TO ?? process.env.SMTP_USER,
-      replyTo: email,
-      subject: `[Contact] ${subject}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 32px;">
-          <h2 style="color: #1d4ed8; margin-top:0;">Nouveau message de contact</h2>
-          <table style="width:100%;border-collapse:collapse;">
-            <tr><td style="padding:8px;color:#64748b;width:100px;">Nom</td><td style="padding:8px;font-weight:bold;">${safeName}</td></tr>
-            <tr style="background:#f8fafc;"><td style="padding:8px;color:#64748b;">Email</td><td style="padding:8px;">${safeEmail}</td></tr>
-            <tr><td style="padding:8px;color:#64748b;">Sujet</td><td style="padding:8px;">${safeSubject}</td></tr>
-          </table>
-          <div style="margin-top:16px;padding:16px;background:#f8fafc;border-radius:8px;border-left:4px solid #2563eb;">
-            <p style="margin:0;white-space:pre-wrap;">${safeMessage}</p>
-          </div>
-          <p style="color:#94a3b8;font-size:13px;margin-top:16px;">
-            R&eacute;pondez directement &agrave; cet email pour contacter ${safeName}.
-          </p>
-        </div>
-      `,
-    }).catch((err) => {
-      console.error('[CONTACT_EMAIL]', err)
+    after(async () => {
+      try {
+        await transporter.sendMail({
+          from: `"Site Dr Tchuifon" <${process.env.SMTP_FROM ?? process.env.SMTP_USER}>`,
+          to: process.env.SMTP_TO ?? process.env.SMTP_USER,
+          replyTo: email,
+          subject: `[Contact] ${subject}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 32px;">
+              <h2 style="color: #1d4ed8; margin-top:0;">Nouveau message de contact</h2>
+              <table style="width:100%;border-collapse:collapse;">
+                <tr><td style="padding:8px;color:#64748b;width:100px;">Nom</td><td style="padding:8px;font-weight:bold;">${safeName}</td></tr>
+                <tr style="background:#f8fafc;"><td style="padding:8px;color:#64748b;">Email</td><td style="padding:8px;">${safeEmail}</td></tr>
+                <tr><td style="padding:8px;color:#64748b;">Sujet</td><td style="padding:8px;">${safeSubject}</td></tr>
+              </table>
+              <div style="margin-top:16px;padding:16px;background:#f8fafc;border-radius:8px;border-left:4px solid #2563eb;">
+                <p style="margin:0;white-space:pre-wrap;">${safeMessage}</p>
+              </div>
+              <p style="color:#94a3b8;font-size:13px;margin-top:16px;">
+                R&eacute;pondez directement &agrave; cet email pour contacter ${safeName}.
+              </p>
+            </div>
+          `,
+        })
+      } catch (err) {
+        console.error('[CONTACT_EMAIL]', err)
+      }
     })
 
     return NextResponse.json({ success: true, message: 'Message envoyé avec succès.' })

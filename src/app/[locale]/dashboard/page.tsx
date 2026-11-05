@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 import { useLocale } from 'next-intl'
 import Link from 'next/link'
 import StatCard from '@/components/dashboard/StatCard'
+import { toast } from '@/components/ui/Toast'
+import { apiFetch } from '@/lib/client-api'
 import { motion } from 'framer-motion'
 import {
   RiArticleLine, RiBookOpenLine, RiAwardLine, RiGroupLine,
@@ -64,11 +66,11 @@ function HBarChart({ data }: { data: Record<string, number> }) {
 
 // ── Donut chart ───────────────────────────────────────────────────
 const SUP_LEVEL_META: Record<string, { label: string; color: string }> = {
-  LICENCE:   { label: 'Licence',    color: '#3b82f6' },
-  MASTER:    { label: 'Master',     color: '#8b5cf6' },
-  INGENIEUR: { label: 'Ingénieur',  color: '#f59e0b' },
-  DOCTORAT:  { label: 'Doctorat',   color: '#10b981' },
-  UNKNOWN:   { label: 'Autre',      color: '#94a3b8' },
+  INGENIEUR: { label: 'Ingénieur', color: '#f59e0b' },
+  MASTER_2:  { label: 'Master 2',  color: '#8b5cf6' },
+  DOCTORAT:  { label: 'Doctorat',  color: '#10b981' },
+  POST_DOC:  { label: 'Post-Doc',  color: '#0ea5e9' },
+  UNKNOWN:   { label: 'Autre',     color: '#94a3b8' },
 }
 
 function DonutChart({ data }: { data: Record<string, number> }) {
@@ -186,10 +188,13 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/stats?dashboard=1')
-      .then(r => r.json())
-      .then((data: DashboardStats) => setStats(data))
-      .catch(console.error)
+    apiFetch('/api/stats?dashboard=1')
+      .then(async (r) => {
+        if (!r.ok) throw new Error('stats')
+        return r.json() as Promise<DashboardStats>
+      })
+      .then((data) => setStats(data))
+      .catch(() => toast.error('Erreur de chargement des statistiques'))
       .finally(() => setLoading(false))
   }, [])
 
@@ -235,7 +240,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-5">
             <div>
               <h2 className="text-sm font-semibold text-slate-800">Publications par type</h2>
-              <p className="text-xs text-slate-400 mt-0.5">{stats?.publications ?? 0} publiée(s) au total</p>
+              <p className="text-xs text-slate-400 mt-0.5">{stats?.publications ?? 0} publication(s) au total</p>
             </div>
             <Link href={`/${locale}/dashboard/publications`}
               className="text-xs text-primary-600 hover:text-primary-700 font-medium transition-colors">

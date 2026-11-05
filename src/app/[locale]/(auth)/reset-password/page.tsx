@@ -1,5 +1,5 @@
 'use client'
-import { Suspense, useState } from 'react'
+import { Suspense, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -9,20 +9,10 @@ import Link from 'next/link'
 import { toast } from '@/components/ui/Toast'
 import { RiLockLine, RiArrowLeftLine } from 'react-icons/ri'
 
-const schema = z.object({
-  password: z
-    .string()
-    .min(8, 'Au moins 8 caractères')
-    .regex(/[A-Z]/, 'Au moins une majuscule')
-    .regex(/[0-9]/, 'Au moins un chiffre')
-    .regex(/[^a-zA-Z0-9]/, 'Au moins un caractère spécial'),
-  confirmPassword: z.string().min(8, 'Au moins 8 caractères'),
-}).refine(data => data.password === data.confirmPassword, {
-  message: 'Les mots de passe ne correspondent pas',
-  path: ['confirmPassword'],
-})
-
-type FormData = z.infer<typeof schema>
+type FormData = {
+  password: string
+  confirmPassword: string
+}
 
 function ResetPasswordContent() {
   const t = useTranslations('auth.resetPassword')
@@ -32,12 +22,31 @@ function ResetPasswordContent() {
   const token = searchParams.get('token')
   const [success, setSuccess] = useState(false)
 
+  const schema = useMemo(
+    () =>
+      z
+        .object({
+          password: z
+            .string()
+            .min(8, t('errors.minLength'))
+            .regex(/[A-Z]/, t('errors.uppercase'))
+            .regex(/[0-9]/, t('errors.number'))
+            .regex(/[^a-zA-Z0-9]/, t('errors.special')),
+          confirmPassword: z.string().min(8, t('errors.minLength')),
+        })
+        .refine((data) => data.password === data.confirmPassword, {
+          message: t('errors.mismatch'),
+          path: ['confirmPassword'],
+        }),
+    [t]
+  )
+
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
   })
 
   const onSubmit = async (data: FormData) => {
-    if (!token) { toast.error('Token invalide'); return }
+    if (!token) { toast.error(t('errors.invalidToken')); return }
     try {
       const res = await fetch('/api/auth/reset-password', {
         method: 'POST',
@@ -45,11 +54,14 @@ function ResetPasswordContent() {
         body: JSON.stringify({ token, password: data.password }),
       })
       const json = await res.json()
-      if (!res.ok) { toast.error(json.error); return }
+      if (!res.ok) {
+        toast.error(res.status === 400 ? t('errors.invalidToken') : (json.error ?? t('errors.networkError')))
+        return
+      }
       setSuccess(true)
       setTimeout(() => router.push(`/${locale}/login`), 2000)
     } catch {
-      toast.error('Erreur réseau')
+      toast.error(t('errors.networkError'))
     }
   }
 
@@ -112,8 +124,10 @@ function ResetPasswordContent() {
 }
 
 export default function ResetPasswordPage() {
+  const t = useTranslations('auth.resetPassword')
+
   return (
-    <Suspense fallback={<div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-8 text-center text-blue-200 text-sm">Chargement...</div>}>
+    <Suspense fallback={<div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-8 text-center text-blue-200 text-sm">{t('processing')}</div>}>
       <ResetPasswordContent />
     </Suspense>
   )

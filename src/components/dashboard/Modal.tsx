@@ -26,10 +26,11 @@ export default function Modal({ open, onClose, title, size = 'md', children }: P
   }, [open])
 
   useEffect(() => {
+    if (!open) return
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [onClose])
+  }, [open, onClose])
 
   return (
     <AnimatePresence>

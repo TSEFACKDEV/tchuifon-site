@@ -16,8 +16,8 @@ model User {
   id            String         @id @default(cuid())
   email         String         @unique
   password      String
-  role          Role           @default(ADMIN)
-    // Champs reset password
+  role          Role           @default(COLLABORATOR)
+  // Champs reset password
   resetToken     String?
   resetTokenExp  DateTime?
   createdAt     DateTime       @default(now())
@@ -202,6 +202,18 @@ model PageView {
   @@index([page])
   @@index([viewedAt(sort: Desc)])
   @@map("page_views")
+}
+
+model HeroSlide {
+  id        String   @id @default(cuid())
+  imageUrl  String
+  publicId  String?
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([position])
+  @@map("hero_slides")
 }
 
 

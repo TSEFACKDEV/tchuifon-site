@@ -11,10 +11,11 @@ import {
   RiDropLine,
 } from 'react-icons/ri'
 import { useEffect, useState } from 'react'
+import { usePublicProfile } from '@/components/public/ProfileProvider'
 
 export const dynamic = 'force-dynamic'
 
-const SLIDES = [
+const DEFAULT_SLIDES = [
   '/images/slides/1.jpeg',
   '/images/slides/2.jpeg',
   '/images/slides/3.jpeg',
@@ -28,27 +29,12 @@ const SLIDES = [
 
 const KB_CLASSES = ['kenburns-1', 'kenburns-2', 'kenburns-3'] as const
 
-type Profile = {
-  fullName?: string
-  title?: string
-  email?: string
-  phone?: string
-  institution?: string
-  department?: string
-  officeLocation?: string
-  bio?: string
-  photoUrl?: string
-  cvUrl?: string
-  website?: string
-  specializations?: string[]
-  degrees?: string[]
-}
-
 export default function HomePage() {
   const t = useTranslations('home')
   const locale = useLocale()
+  const profile = usePublicProfile()
+  const [slides, setSlides] = useState<string[]>(DEFAULT_SLIDES)
   const [currentSlide, setCurrentSlide] = useState(0)
-  const [profile, setProfile] = useState<Profile | null>(null)
   const [stats, setStats] = useState({
     publications: 0,
     courses: 0,
@@ -57,26 +43,35 @@ export default function HomePage() {
   })
 
   useEffect(() => {
+    if (slides.length < 2) return
+
     const interval = setInterval(() => {
-      setCurrentSlide(prev => (prev + 1) % SLIDES.length)
+      setCurrentSlide(prev => (prev + 1) % slides.length)
     }, 6000)
     return () => clearInterval(interval)
-  }, [])
+  }, [slides.length])
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [profileRes, statsRes] = await Promise.all([
-          fetch('/api/profile'),
-          fetch('/api/stats'),
+        const [statsRes, slidesRes] = await Promise.all([
+          fetch('/api/stats', { cache: 'no-store' }),
+          fetch('/api/slides', { cache: 'no-store' }),
         ])
-        if (profileRes.ok) {
-          const profileData = await profileRes.json()
-          setProfile(profileData)
-        }
+
         if (statsRes.ok) {
           const statsData = await statsRes.json()
           setStats(statsData)
+        }
+
+        if (slidesRes.ok) {
+          const slidesData = await slidesRes.json()
+          if (Array.isArray(slidesData.data)) {
+            const urls = slidesData.data
+              .map((slide: { imageUrl?: string }) => slide.imageUrl)
+              .filter((url: string | undefined): url is string => Boolean(url))
+            setSlides(urls)
+          }
         }
       } catch (error) {
         console.error('Erreur lors de la récupération des données:', error)
@@ -85,16 +80,18 @@ export default function HomePage() {
     fetchData()
   }, [])
 
-  const displayName = profile?.fullName ?? 'Pr. TCHUIFON TCHUIFON Donald Raoul'
-  const displayTitle = profile?.title ?? (locale === 'fr' ? 'Maître de Conférences — Chimie Inorganique' : 'Senior Lecturer — Inorganic Chemistry')
-  const displayEmail = profile?.email ?? 'tchuifondonald@yahoo.fr'
-  const displayPhone = profile?.phone ?? '+237 674 78 00 94'
-  const displayInst = profile?.institution ?? (locale === 'fr' ? 'ENSPD Douala' : 'ENSPD Douala')
-  const displayDept = profile?.department ?? (locale === 'fr' ? 'Département de Génie des Procédés' : 'Department of Process Engineering')
-  const displayBio = profile?.bio ?? ''
-  const displayPhoto = profile?.photoUrl ?? null
-  const displayCV = profile?.cvUrl ?? null
-  const displayWeb = profile?.website ?? 'https://www.ensp-udo.com'
+  const activeSlideIndex = slides.length > 0 ? currentSlide % slides.length : 0
+  const activeSlide = slides.length > 0 ? slides[activeSlideIndex] : null
+
+  const displayName = profile?.fullName || t('hero.title')
+  const displayTitle = profile?.title || t('hero.subtitle')
+  const displayEmail = profile?.email || 'tchuifondonald@yahoo.fr'
+  const displayPhone = profile?.phone || '+237 674 78 00 94'
+  const displayInst = profile?.institution || t('about.institution')
+  const displayDept = profile?.department || t('about.department')
+  const displayBio = profile?.bio || t('hero.bio')
+  const displayPhoto = profile?.photoUrl || null
+  const displayCV = profile?.cvUrl || null
 
   const statCards = [
     { label: t('publications'), value: stats.publications, icon: RiArticleLine, href: `/${locale}/publications`, color: 'bg-blue-50 text-blue-700 border-blue-100' },
@@ -127,28 +124,30 @@ export default function HomePage() {
   return (
     <div>
       {/* ── HERO ─────────────────────────────────────────────── */}
-      <section className="text-white relative overflow-hidden min-h-145 md:min-h-170">
+      <section className="text-white relative overflow-hidden min-h-145 md:min-h-170 bg-slate-900">
         {/* Background slider — images are fully visible */}
         <div className="absolute inset-0 z-0">
-          <AnimatePresence initial={false}>
-            <motion.div
-              key={currentSlide}
-              className="absolute inset-0 overflow-hidden"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.5, ease: 'easeInOut' }}
-            >
-              <Image
-                src={SLIDES[currentSlide]}
-                alt=""
-                fill
-                priority={currentSlide === 0}
-                className={`object-cover ${KB_CLASSES[currentSlide % KB_CLASSES.length]}`}
-                sizes="100vw"
-              />
-            </motion.div>
-          </AnimatePresence>
+          {activeSlide && (
+            <AnimatePresence initial={false}>
+              <motion.div
+                key={`${activeSlideIndex}-${activeSlide}`}
+                className="absolute inset-0 overflow-hidden"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.5, ease: 'easeInOut' }}
+              >
+                <Image
+                  src={activeSlide}
+                  alt=""
+                  fill
+                  priority={activeSlideIndex === 0}
+                  className={`object-cover ${KB_CLASSES[activeSlideIndex % KB_CLASSES.length]}`}
+                  sizes="100vw"
+                />
+              </motion.div>
+            </AnimatePresence>
+          )}
 
           {/* Subtle left-to-right gradient — dark on left for text legibility, fades out on right so image stays clear */}
           <div className="absolute inset-0 bg-linear-to-r from-black/65 via-black/35 to-black/10" />
@@ -175,12 +174,7 @@ export default function HomePage() {
               </p>
 
               <p className="text-white/85 text-sm md:text-base leading-relaxed mb-7 max-w-xl drop-shadow-sm">
-                {displayBio
-                  ? displayBio.slice(0, 220) + (displayBio.length > 220 ? '…' : '')
-                  : locale === 'fr'
-                    ? 'Spécialisé en chimie industrielle avec une expertise reconnue dans les bioénergies, le traitement des eaux usées et la synthèse de matériaux.'
-                    : 'Specialized in industrial chemistry with recognized expertise in bioenergies, wastewater treatment and material synthesis.'
-                }
+                {displayBio.slice(0, 220) + (displayBio.length > 220 ? '…' : '')}
               </p>
 
               {/* Contact info row */}
@@ -255,36 +249,41 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Slide indicators */}
-        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-2 flex items-center gap-2">
-          {SLIDES.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrentSlide(i)}
-              aria-label={`Slide ${i + 1}`}
-              className="focus:outline-none"
-            >
-              <motion.span
-                className="block rounded-full"
-                animate={{
-                  width: i === currentSlide ? 28 : 8,
-                  height: 8,
-                  backgroundColor: i === currentSlide ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.45)',
-                }}
-                transition={{ duration: 0.4, ease: 'easeInOut' }}
-              />
-            </button>
-          ))}
-        </div>
+        {/* Slide indicators — pas de limite d'images, les points passent à la ligne */}
+        {slides.length > 0 && (
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-2 flex flex-wrap justify-center items-center gap-1.5 max-w-[min(90vw,48rem)] px-2">
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentSlide(i)}
+                aria-label={`Slide ${i + 1}`}
+                aria-current={i === activeSlideIndex ? 'true' : undefined}
+                className="focus:outline-none"
+              >
+                <motion.span
+                  className="block rounded-full"
+                  animate={{
+                    width: i === activeSlideIndex ? 28 : 8,
+                    height: 8,
+                    backgroundColor: i === activeSlideIndex ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.45)',
+                  }}
+                  transition={{ duration: 0.4, ease: 'easeInOut' }}
+                />
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Progress bar */}
-        <motion.div
-          key={`progress-${currentSlide}`}
-          className="absolute bottom-0 left-0 h-0.5 bg-white/60 z-2"
-          initial={{ width: '0%' }}
-          animate={{ width: '100%' }}
-          transition={{ duration: 6, ease: 'linear' }}
-        />
+        {slides.length > 1 && (
+          <motion.div
+            key={`progress-${activeSlideIndex}`}
+            className="absolute bottom-0 left-0 h-0.5 bg-white/60 z-2"
+            initial={{ width: '0%' }}
+            animate={{ width: '100%' }}
+            transition={{ duration: 6, ease: 'linear' }}
+          />
+        )}
       </section>
 
       {/* ── STATS ────────────────────────────────────────────── */}

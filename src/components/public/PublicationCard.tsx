@@ -1,6 +1,7 @@
 'use client'
 import { motion } from 'framer-motion'
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import { RiArticleLine, RiCalendarLine, RiExternalLinkLine, RiQuoteText } from 'react-icons/ri'
 
 const typeColors: Record<string, string> = {
@@ -10,15 +11,6 @@ const typeColors: Record<string, string> = {
   THESIS: 'bg-green-50 text-green-700 border-green-100',
   PATENT: 'bg-red-50 text-red-700 border-red-100',
   POSTER: 'bg-pink-50 text-pink-700 border-pink-100',
-}
-
-const typeLabels: Record<string, string> = {
-  ARTICLE: 'Article',
-  CONFERENCE: 'Conférence',
-  BOOK_CHAPTER: 'Chapitre',
-  THESIS: 'Thèse',
-  PATENT: 'Brevet',
-  POSTER: 'Poster',
 }
 
 type Publication = {
@@ -37,6 +29,7 @@ type Publication = {
 }
 
 export default function PublicationCard({ pub, index = 0 }: { pub: Publication; index?: number }) {
+  const t = useTranslations('enums')
   const href = `/publications/${pub.slug ?? pub.id}`
 
   return (
@@ -49,7 +42,7 @@ export default function PublicationCard({ pub, index = 0 }: { pub: Publication; 
         {/* Header */}
         <div className="flex items-start justify-between gap-3 mb-3">
           <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium border ${typeColors[pub.type] ?? typeColors.ARTICLE}`}>
-            {typeLabels[pub.type] ?? pub.type}
+            {t(`publicationType.${pub.type}`)}
           </span>
           {pub.year && (
             <div className="flex items-center gap-1 text-xs text-slate-400">
@@ -66,7 +59,7 @@ export default function PublicationCard({ pub, index = 0 }: { pub: Publication; 
 
         {/* Auteurs */}
         <p className="text-xs text-slate-500 mb-3 truncate">
-          {pub.authors.join(', ')}
+          {pub.authors.filter(Boolean).join(', ')}
         </p>
 
         {/* Abstract */}
@@ -80,14 +73,14 @@ export default function PublicationCard({ pub, index = 0 }: { pub: Publication; 
         {(pub.journal || pub.conference) && (
           <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-4">
             <RiArticleLine className="w-3.5 h-3.5 shrink-0" />
-            <span className="italic truncate">{pub.journal ?? pub.conference}</span>
+            <span className="italic truncate">{pub.journal || pub.conference}</span>
           </div>
         )}
 
         {/* Footer */}
         <div className="flex items-center justify-between pt-3 border-t border-slate-100">
           <div className="flex flex-wrap gap-1.5">
-            {pub.keywords.slice(0, 3).map(k => (
+            {pub.keywords.filter(Boolean).slice(0, 3).map(k => (
               <span key={k} className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-xs">
                 {k}
               </span>

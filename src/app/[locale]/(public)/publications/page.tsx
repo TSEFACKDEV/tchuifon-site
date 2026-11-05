@@ -25,7 +25,7 @@ type Publication = {
   doi?: string
 }
 
-type Meta = { total: number; page: number; limit: number; totalPages: number }
+type Meta = { total: number; page: number; limit: number; totalPages: number; years?: number[] }
 
 const TYPE_OPTIONS = [
   { value: '', labelFr: 'Tous', labelEn: 'All' },
@@ -96,11 +96,9 @@ export default function PublicationsPage() {
         const json = await res.json()
         setPublications(json.data ?? [])
         setMeta(json.meta ?? { total: 0, page: 1, limit: LIMIT, totalPages: 0 })
-        // collect unique years from data for year filter
-        setYears(prev => {
-          const all = [...new Set([...prev, ...(json.data ?? []).map((p: Publication) => p.year).filter(Boolean)])] as number[]
-          return all.sort((a, b) => b - a)
-        })
+        if (Array.isArray(json.meta?.years)) {
+          setYears(json.meta.years)
+        }
       }
     } catch { /* ignore */ }
     finally { setLoading(false) }
@@ -209,7 +207,7 @@ export default function PublicationsPage() {
               exit={{ opacity: 0 }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
             >
-              {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+              {Array.from({ length: LIMIT }).map((_, i) => <SkeletonCard key={i} />)}
             </motion.div>
           ) : publications.length === 0 ? (
             <motion.div

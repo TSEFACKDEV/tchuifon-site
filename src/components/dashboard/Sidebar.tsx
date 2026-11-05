@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useLocale } from 'next-intl'
@@ -11,11 +11,12 @@ import {
   RiDashboardLine, RiArticleLine, RiBookOpenLine,
   RiAwardLine, RiGroupLine, RiMailLine, RiUserLine,
   RiLogoutBoxLine, RiMenuFoldLine, RiMenuUnfoldLine,
-  RiFlaskLine, RiSettings3Line,
+  RiFlaskLine, RiSettings3Line, RiImageLine,
 } from 'react-icons/ri'
 
 const baseNavItems = [
   { path: '/dashboard',               label: 'Vue d\'ensemble', icon: RiDashboardLine, exact: true },
+  { path: '/dashboard/slides',        label: 'Carrousel',       icon: RiImageLine,     adminOnly: true },
   { path: '/dashboard/publications',  label: 'Publications',    icon: RiArticleLine },
   { path: '/dashboard/courses',       label: 'Cours',           icon: RiBookOpenLine },
   { path: '/dashboard/supervisions',  label: 'Encadrements',    icon: RiAwardLine },
@@ -141,9 +142,15 @@ function SidebarContent({
 export default function Sidebar() {
   const pathname = usePathname()
   const locale = useLocale()
-  const { user, logout } = useAuthStore()
+  const { user, logout, fetchMe } = useAuthStore()
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  // Si le localStorage a été vidé mais que la session cookie est toujours valide,
+  // on recharge l'utilisateur pour afficher le bon menu.
+  useEffect(() => {
+    if (!user) fetchMe()
+  }, [user, fetchMe])
 
   const navItems: NavItem[] = baseNavItems.map(item => ({
     ...item,
@@ -200,7 +207,7 @@ export default function Sidebar() {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="lg:hidden fixed left-0 top-0 h-full w-64 bg-slate-900 z-50 flex flex-col"
             >
-              <SidebarContent {...sharedProps} />
+              <SidebarContent {...sharedProps} collapsed={false} />
             </motion.aside>
           </>
         )}

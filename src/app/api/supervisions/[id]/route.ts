@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 const updateSchema = z.object({
   studentName: z.string().optional(),
-  level: z.enum(['INGENIEUR', 'MASTER_2', 'DOCTORAT', 'POST_DOC']).optional(),
+  level: z.enum(['INGENIEUR', 'MASTER_2', 'DOCTORAT', 'POST_DOC']).nullable().optional(),
   topic: z.string().optional(),
   description: z.string().optional(),
   startDate: z.string().optional(),
@@ -47,8 +47,12 @@ export async function PUT(
       where: { id },
       data: {
         ...data,
-        ...(startDate ? { startDate: new Date(startDate) } : {}),
-        ...(endDate ? { endDate: new Date(endDate) } : {}),
+        ...(startDate !== undefined
+          ? { startDate: startDate ? new Date(startDate) : null }
+          : {}),
+        ...(endDate !== undefined
+          ? { endDate: endDate ? new Date(endDate) : null }
+          : {}),
       },
     })
     return NextResponse.json(supervision)

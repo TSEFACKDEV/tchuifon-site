@@ -8,25 +8,25 @@ import ConfirmDialog from '@/components/dashboard/ConfirmDialog'
 import CollaboratorForm from '@/components/dashboard/forms/CollaboratorForm'
 import { Button } from '@/components/ui/Button'
 import { toast } from '@/components/ui/Toast'
+import { apiFetch } from '@/lib/client-api'
 import { RiAddLine, RiEditLine, RiDeleteBinLine, RiExternalLinkLine } from 'react-icons/ri'
-import { z } from 'zod'
 
-const collaboratorSchema = z.object({
-  name: z.string().min(1),
-  title: z.string().optional(),
-  institution: z.string().optional(),
-  department: z.string().optional(),
-  country: z.string().optional(),
-  email: z.string().email().optional().or(z.literal('')),
-  website: z.string().optional(),
-  photoUrl: z.string().optional(),
-  researchArea: z.string().optional(),
-  googleScholar: z.string().optional(),
-  orcid: z.string().optional(),
-})
-type CollaboratorFormData = z.infer<typeof collaboratorSchema>
+type Collaborator = {
+  id: string
+  name: string
+  title?: string
+  institution?: string
+  department?: string
+  country?: string
+  email?: string
+  website?: string
+  photoUrl?: string
+  researchArea?: string
+  googleScholar?: string
+  orcid?: string
+}
 
-type Collaborator = CollaboratorFormData & { id: string }
+type CollaboratorFormData = Omit<Collaborator, 'id'>
 
 export default function DashboardCollaboratorsPage() {
   const [items, setItems] = useState<Collaborator[]>([])
@@ -40,7 +40,8 @@ export default function DashboardCollaboratorsPage() {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/collaborators')
+      const res = await apiFetch('/api/collaborators')
+      if (!res.ok) { toast.error('Erreur de chargement'); return }
       const data = await res.json()
       setItems(data.data ?? [])
     } catch { toast.error('Erreur de chargement') }
@@ -58,7 +59,7 @@ export default function DashboardCollaboratorsPage() {
     try {
       const url = editItem ? `/api/collaborators/${editItem.id}` : '/api/collaborators'
       const method = editItem ? 'PUT' : 'POST'
-      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+      const res = await apiFetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
       if (!res.ok) { const j = await res.json(); toast.error(j.error ?? 'Erreur'); return }
       toast.success(editItem ? 'Collaborateur mis à jour' : 'Collaborateur ajouté')
       closeModal(); load()
@@ -70,7 +71,7 @@ export default function DashboardCollaboratorsPage() {
     if (!deleteId) return
     setDeleting(true)
     try {
-      const res = await fetch(`/api/collaborators/${deleteId}`, { method: 'DELETE' })
+      const res = await apiFetch(`/api/collaborators/${deleteId}`, { method: 'DELETE' })
       if (!res.ok) { const j = await res.json(); toast.error(j.error ?? 'Erreur'); return }
       toast.success('Collaborateur supprimé')
       setDeleteId(null); load()

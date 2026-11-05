@@ -7,6 +7,7 @@ import ConfirmDialog from '@/components/dashboard/ConfirmDialog'
 import CourseForm from '@/components/dashboard/forms/CourseForm'
 import { Button } from '@/components/ui/Button'
 import { toast } from '@/components/ui/Toast'
+import { apiFetch } from '@/lib/client-api'
 import { RiAddLine, RiEditLine, RiDeleteBinLine } from 'react-icons/ri'
 import { clsx } from 'clsx'
 
@@ -44,7 +45,8 @@ export default function DashboardCoursesPage() {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/courses')
+      const res = await apiFetch('/api/courses?all=true')
+      if (!res.ok) { toast.error('Erreur de chargement'); return }
       const data = await res.json()
       setItems(data.data ?? [])
     } catch { toast.error('Erreur de chargement') }
@@ -62,7 +64,7 @@ export default function DashboardCoursesPage() {
     try {
       const url = editItem ? `/api/courses/${editItem.id}` : '/api/courses'
       const method = editItem ? 'PUT' : 'POST'
-      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+      const res = await apiFetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
       if (!res.ok) { const j = await res.json(); toast.error(j.error ?? 'Erreur'); return }
       toast.success(editItem ? 'Cours mis à jour' : 'Cours créé')
       closeModal(); load()
@@ -74,7 +76,7 @@ export default function DashboardCoursesPage() {
     if (!deleteId) return
     setDeleting(true)
     try {
-      const res = await fetch(`/api/courses/${deleteId}`, { method: 'DELETE' })
+      const res = await apiFetch(`/api/courses/${deleteId}`, { method: 'DELETE' })
       if (!res.ok) { const j = await res.json(); toast.error(j.error ?? 'Erreur'); return }
       toast.success('Cours supprimé')
       setDeleteId(null); load()

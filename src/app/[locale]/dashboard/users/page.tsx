@@ -5,6 +5,7 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader'
 import DataTable from '@/components/dashboard/DataTable'
 import ConfirmDialog from '@/components/dashboard/ConfirmDialog'
 import { toast } from '@/components/ui/Toast'
+import { apiFetch } from '@/lib/client-api'
 import { RiDeleteBinLine, RiShieldLine, RiUserLine, RiLoader4Line } from 'react-icons/ri'
 import { clsx } from 'clsx'
 
@@ -25,7 +26,8 @@ export default function DashboardUsersPage() {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/users')
+      const res = await apiFetch('/api/users')
+      if (!res.ok) { toast.error('Erreur de chargement'); return }
       const data = await res.json()
       setItems(data.data ?? [])
     } catch { toast.error('Erreur de chargement') }
@@ -38,7 +40,7 @@ export default function DashboardUsersPage() {
     if (!deleteId) return
     setDeleting(true)
     try {
-      const res = await fetch(`/api/users/${deleteId}`, { method: 'DELETE' })
+      const res = await apiFetch(`/api/users/${deleteId}`, { method: 'DELETE' })
       if (!res.ok) { const j = await res.json(); toast.error(j.error ?? 'Erreur'); return }
       toast.success('Utilisateur supprimé')
       setDeleteId(null); load()

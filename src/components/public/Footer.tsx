@@ -3,10 +3,26 @@ import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
 import { RiFlaskLine, RiMailLine, RiPhoneLine, RiMapPinLine } from 'react-icons/ri'
 import { motion } from 'framer-motion'
+import { usePublicProfile } from '@/components/public/ProfileProvider'
 
 export default function Footer() {
   const t = useTranslations('footer')
   const locale = useLocale()
+  const profile = usePublicProfile()
+
+  const email = profile?.email || 'tchuifondonald@yahoo.fr'
+  const phone = profile?.phone || '+237 674 78 00 94'
+  const office = profile?.officeLocation || t('officeFallback')
+  const website = profile?.website || 'https://www.ensp-udo.com'
+
+  const navLinks = [
+    { href: `/${locale}`, label: t('home') },
+    { href: `/${locale}/courses`, label: t('courses') },
+    { href: `/${locale}/publications`, label: t('publications') },
+    { href: `/${locale}/supervisions`, label: t('supervisions') },
+    { href: `/${locale}/collaborators`, label: t('collaborators') },
+    { href: `/${locale}/contact`, label: t('contact') },
+  ]
 
   return (
     <footer className="bg-slate-900 text-slate-400 mt-auto">
@@ -50,14 +66,7 @@ export default function Footer() {
           >
             <h3 className="text-sm font-semibold text-white mb-4">{t('navigation')}</h3>
             <ul className="space-y-2 text-sm">
-              {[
-                { href: `/${locale}`, label: locale === 'fr' ? 'Accueil' : 'Home' },
-                { href: `/${locale}/courses`, label: t('navigation') === 'Navigation' ? 'Courses' : 'Cours dispensés' },
-                { href: `/${locale}/publications`, label: locale === 'fr' ? 'Publications' : 'Publications' },
-                { href: `/${locale}/supervisions`, label: locale === 'fr' ? 'Encadrements' : 'Supervisions' },
-                { href: `/${locale}/collaborators`, label: locale === 'fr' ? 'Collaborateurs' : 'Collaborators' },
-                { href: `/${locale}/contact`, label: locale === 'fr' ? 'Contact' : 'Contact' },
-              ].map(({ href, label }) => (
+              {navLinks.map(({ href, label }) => (
                 <li key={href}>
                   <Link href={href} className="hover:text-white transition-colors">{label}</Link>
                 </li>
@@ -76,19 +85,19 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2.5">
                 <RiMailLine className="w-4 h-4 mt-0.5 shrink-0 text-primary-400" />
-                <a href="mailto:tchuifondonald@yahoo.fr" className="hover:text-white transition-colors">
-                  tchuifondonald@yahoo.fr
+                <a href={`mailto:${email}`} className="hover:text-white transition-colors">
+                  {email}
                 </a>
               </li>
               <li className="flex items-start gap-2.5">
                 <RiPhoneLine className="w-4 h-4 mt-0.5 shrink-0 text-primary-400" />
-                <a href="tel:+237674780094" className="hover:text-white transition-colors">
-                  +237 674 78 00 94
+                <a href={`tel:${phone.replace(/\s/g, '')}`} className="hover:text-white transition-colors">
+                  {phone}
                 </a>
               </li>
               <li className="flex items-start gap-2.5">
                 <RiMapPinLine className="w-4 h-4 mt-0.5 shrink-0 text-primary-400" />
-                <span>PK 17 Douala Cameroun<br />Campus ENSPD</span>
+                <span>{office}</span>
               </li>
             </ul>
           </motion.div>
@@ -101,10 +110,8 @@ export default function Footer() {
           transition={{ delay: 0.3, duration: 0.6 }}
           viewport={{ once: true, margin: "-100px" }}
         >
-          <p>
-            © {new Date().getFullYear()} Pr TCHUIFON Donald Raoul. {locale === 'fr' ? 'Tous droits réservés.' : 'All rights reserved.'}
-          </p>
-          <a href="https://www.ensp-udo.com" target="_blank" rel="noopener noreferrer"
+          <p>{t('copyright', { year: new Date().getFullYear() })}</p>
+          <a href={website} target="_blank" rel="noopener noreferrer"
             className="hover:text-white transition-colors">
             {t('website')}
           </a>

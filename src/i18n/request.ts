@@ -1,17 +1,16 @@
 import { getRequestConfig } from 'next-intl/server'
-import { notFound } from 'next/navigation'
 import { routing } from './routing'
 
-export default getRequestConfig(async ({ locale }) => {
-  // Utiliser la locale par défaut si elle n'est pas fournie
-  const resolvedLocale = locale || routing.defaultLocale
+export default getRequestConfig(async ({ locale, requestLocale }) => {
+  // `locale` est fourni explicitement par les appels serveur (ex: getTranslations({ locale })),
+  // sinon on utilise la locale détectée dans l'URL par le middleware.
+  const requestedLocale = locale ?? (await requestLocale)
+  const resolvedLocale =
+    requestedLocale &&
+    routing.locales.includes(requestedLocale as (typeof routing.locales)[number])
+      ? requestedLocale
+      : routing.defaultLocale
 
-  // Valider que la locale est supportée
-  if (!routing.locales.includes(resolvedLocale as (typeof routing.locales)[number])) {
-    notFound()
-  }
-
-  // Charger les messages pour la locale
   const messages = (await import(`./locales/${resolvedLocale}.json`)).default
 
   return {

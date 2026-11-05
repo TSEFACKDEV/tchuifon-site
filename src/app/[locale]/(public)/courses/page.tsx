@@ -69,7 +69,6 @@ export default function CoursesPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [levelFilter, setLevelFilter] = useState('')
-  const [activeFilter, setActiveFilter] = useState<'all' | 'active' | 'inactive'>('all')
 
   const fetchCourses = useCallback(async () => {
     setLoading(true)
@@ -89,8 +88,6 @@ export default function CoursesPage() {
   useEffect(() => {
     let result = [...courses]
     if (levelFilter) result = result.filter(c => c.level === levelFilter)
-    if (activeFilter === 'active') result = result.filter(c => c.isActive)
-    if (activeFilter === 'inactive') result = result.filter(c => !c.isActive)
     if (search.trim()) {
       const q = search.toLowerCase()
       result = result.filter(c =>
@@ -100,10 +97,10 @@ export default function CoursesPage() {
       )
     }
     setFiltered(result)
-  }, [courses, levelFilter, activeFilter, search])
+  }, [courses, levelFilter, search])
 
-  const hasFilters = levelFilter || activeFilter !== 'all' || search.trim()
-  const clearFilters = () => { setLevelFilter(''); setActiveFilter('all'); setSearch('') }
+  const hasFilters = levelFilter || search.trim()
+  const clearFilters = () => { setLevelFilter(''); setSearch('') }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -148,15 +145,6 @@ export default function CoursesPage() {
                 </button>
               )}
             </div>
-            <select
-              value={activeFilter}
-              onChange={e => setActiveFilter(e.target.value as 'all' | 'active' | 'inactive')}
-              className="w-full sm:w-40 px-3 py-2.5 rounded-xl border border-slate-200 text-sm bg-slate-50 focus:bg-white focus:border-primary-400 focus:outline-none transition-colors"
-            >
-              <option value="all">{fr ? 'Tous les cours' : 'All courses'}</option>
-              <option value="active">{fr ? 'Cours actifs' : 'Active courses'}</option>
-              <option value="inactive">{fr ? 'Cours inactifs' : 'Inactive courses'}</option>
-            </select>
           </div>
 
           {/* Level pills */}

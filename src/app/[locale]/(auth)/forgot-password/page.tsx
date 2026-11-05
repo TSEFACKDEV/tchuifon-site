@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -8,13 +8,19 @@ import Link from 'next/link'
 import { toast } from '@/components/ui/Toast'
 import { RiMailLine, RiArrowLeftLine } from 'react-icons/ri'
 
-const schema = z.object({ email: z.string().email('Email invalide') })
-type FormData = z.infer<typeof schema>
+type FormData = {
+  email: string
+}
 
 export default function ForgotPasswordPage() {
   const t = useTranslations('auth.forgotPassword')
   const locale = useLocale()
   const [sent, setSent] = useState(false)
+
+  const schema = useMemo(
+    () => z.object({ email: z.string().email(t('errors.invalidEmail')) }),
+    [t]
+  )
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -25,13 +31,13 @@ export default function ForgotPasswordPage() {
       const res = await fetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, locale }),
       })
       const json = await res.json()
       if (!res.ok) { toast.error(json.error); return }
       setSent(true)
     } catch {
-      toast.error('Erreur réseau')
+      toast.error(t('errors.networkError'))
     }
   }
 

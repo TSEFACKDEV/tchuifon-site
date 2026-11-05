@@ -30,6 +30,9 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
+  const isActive = (href: string) =>
+    pathname === href || pathname.startsWith(`${href}/`)
+
   // fetchMe est stable (Zustand), eslint-disable pour éviter la boucle infinie
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetchMe() }, [])
@@ -65,7 +68,7 @@ export default function Navbar() {
                 <RiFlaskLine className="w-4 h-4 text-white" />
               </div>
               <div className="hidden sm:block">
-                <p className="text-sm font-semibold text-slate-900 leading-none">Pr TCHUIFON</p>
+                <p className="text-sm font-semibold text-slate-900 leading-none">Pr. TCHUIFON</p>
                 <p className="text-xs text-slate-500 leading-none mt-0.5">ENSPD Douala</p>
               </div>
             </Link>
@@ -89,7 +92,7 @@ export default function Navbar() {
                   href={href}
                   className={clsx(
                     'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                    pathname === href
+                    isActive(href)
                       ? 'bg-primary-50 text-primary-700'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                   )}
@@ -154,7 +157,7 @@ export default function Navbar() {
                   onClick={() => setMenuOpen(false)}
                   className={clsx(
                     'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
-                    pathname === href
+                    isActive(href)
                       ? 'bg-primary-50 text-primary-700'
                       : 'text-slate-600 hover:bg-slate-100'
                   )}

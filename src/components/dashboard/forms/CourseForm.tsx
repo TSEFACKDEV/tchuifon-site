@@ -2,17 +2,17 @@
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { FormField, inputClass, selectClass, textareaClass } from '../FormField'
+import { FormField, inputClass, selectClass, textareaClass, optionalNumber, optionalSelect } from '../FormField'
 import { Button } from '@/components/ui/Button'
 import { RiAddLine, RiDeleteBinLine } from 'react-icons/ri'
 
 const schema = z.object({
   title:       z.string().min(1, 'Titre requis'),
   code:        z.string().optional(),
-  level:       z.enum(['LICENCE', 'MASTER', 'INGENIEUR', 'DOCTORAT']).optional(),
+  level:       z.enum(['LICENCE', 'MASTER', 'INGENIEUR', 'DOCTORAT']).nullable().optional(),
   description: z.string().optional(),
-  credits:     z.number().int().optional(),
-  hours:       z.number().int().optional(),
+  credits:     z.number().int().nullable().optional(),
+  hours:       z.number().int().nullable().optional(),
   semester:    z.string().optional(),
   syllabus:    z.string().optional(),
   objectives:  z.array(z.object({ value: z.string() })),  // ← pas de .default()
@@ -38,8 +38,9 @@ export default function CourseForm({ initialData, onSubmit, loading }: {
 
   const submit = (data: FormData) => onSubmit({
     ...data,
-    credits: data.credits ? Number(data.credits) : undefined,
-    hours:   data.hours   ? Number(data.hours)   : undefined,
+    level: data.level ?? null,
+    credits: data.credits ?? null,
+    hours:   data.hours   ?? null,
     objectives: data.objectives.map(o => o.value).filter(Boolean),
   })
 
@@ -54,7 +55,7 @@ export default function CourseForm({ initialData, onSubmit, loading }: {
           <input {...register('code')} className={inputClass} placeholder="CHI101" />
         </FormField>
         <FormField label="Niveau">
-          <select {...register('level')} className={selectClass}>
+          <select {...register('level', { setValueAs: optionalSelect })} className={selectClass}>
             <option value="">— Sélectionner —</option>
             <option value="LICENCE">Licence</option>
             <option value="MASTER">Master</option>
@@ -69,11 +70,11 @@ export default function CourseForm({ initialData, onSubmit, loading }: {
 
       <div className="grid sm:grid-cols-2 gap-4">
         <FormField label="Crédits">
-          <input {...register('credits', { valueAsNumber: true })} type="number"
+          <input {...register('credits', { setValueAs: optionalNumber })} type="number"
             className={inputClass} placeholder="3" />
         </FormField>
         <FormField label="Heures">
-          <input {...register('hours', { valueAsNumber: true })} type="number"
+          <input {...register('hours', { setValueAs: optionalNumber })} type="number"
             className={inputClass} placeholder="45" />
         </FormField>
       </div>

@@ -29,3 +29,11 @@ export const inputClass = 'w-full px-3.5 py-2.5 rounded-xl border border-slate-2
 export const selectClass = inputClass + ' cursor-pointer'
 
 export const textareaClass = inputClass + ' resize-none'
+
+// react-hook-form renvoie `NaN` ou `''` pour les champs numériques/select vides.
+// Ces helpers permettent de conserver des valeurs optionnelles propres.
+export const optionalNumber = (value: unknown) =>
+  value === '' || value === null || value === undefined ? undefined : Number(value)
+
+export const optionalSelect = (value: unknown) =>
+  value === '' || value === null ? undefined : value

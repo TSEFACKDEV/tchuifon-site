@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { requireAuth } from '@/lib/auth'
+import { requireAuth, getAuthUser } from '@/lib/auth'
 import { z } from 'zod'
 
 const courseSchema = z.object({
   title: z.string().min(1, 'Titre requis'),
   code: z.string().optional(),
-  level: z.enum(['LICENCE', 'MASTER', 'INGENIEUR', 'DOCTORAT']).optional(),
+  level: z.enum(['LICENCE', 'MASTER', 'INGENIEUR', 'DOCTORAT']).nullable().optional(),
   description: z.string().optional(),
-  credits: z.number().int().optional(),
-  hours: z.number().int().optional(),
+  credits: z.number().int().nullable().optional(),
+  hours: z.number().int().nullable().optional(),
   semester: z.string().optional(),
   syllabus: z.string().optional(),
   objectives: z.array(z.string()).default([]),
@@ -21,10 +21,27 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const level = searchParams.get('level')
     const active = searchParams.get('active')
+    const all = searchParams.get('all') === 'true'
 
-    const where: Record<string, unknown> = {}
-    if (level) where.level = level
-    if (active !== null) where.isActive = active === 'true'
+    // Par défaut, le public ne voit que les cours actifs.
+    // Le dashboard demande explicitement `all=true` (réservé aux admins).
+    const authUser = all ? getAuthUser(req) : null
+    const isAdmin = all && authUser?.role === 'ADMIN'
+
+    if (all && !isAdmin) {
+      return NextResponse.json(
+        { error: authUser ? 'Accès refusé' : 'Non authentifié' },
+        { status: authUser ? 403 : 401 }
+      )
+    }
+
+    const where: Record<string, unknown> = isAdmin ? {} : { isActive: true }
+
+    if (level && ['LICENCE', 'MASTER', 'INGENIEUR', 'DOCTORAT'].includes(level)) {
+      where.level = level
+    }
+    // Seul un admin (all=true) peut demander explicitement les cours inactifs.
+    if (isAdmin && active !== null) where.isActive = active === 'true'
 
     const courses = await prisma.course.findMany({
       where,

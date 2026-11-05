@@ -5,9 +5,22 @@ import { PrismaPg } from '@prisma/adapter-pg';
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
+// Images du carrousel fournies avec le site (utilisées si la table est vide)
+const DEFAULT_HERO_SLIDES = [
+  '/images/slides/1.jpeg',
+  '/images/slides/2.jpeg',
+  '/images/slides/3.jpeg',
+  '/images/slides/4.jpeg',
+  '/images/slides/5.jpeg',
+  '/images/slides/6.jpeg',
+  '/images/slides/7.jpeg',
+  '/images/slides/8.jpeg',
+  '/images/slides/9.jpeg',
+];
+
 // Données du profil admin (centralisées pour faciliter les modifications)
 const ADMIN_PROFILE_DATA = {
-  fullName: 'Pr. TCHUIFON TCHUIFON Donald Raoul',
+  fullName: 'Pr. TCHUIFON Donald Raoul',
   title: 'Maître de Conférences — Chimie Inorganique / Chimie Physique',
   bio: `Enseignant-Chercheur au Département de Génie des Procédés de l'École Nationale Supérieure Polytechnique de Douala (ENSPD). Spécialisé en Chimie industrielle avec une expertise reconnue dans le domaine des bioénergies, du traitement des eaux usées, synthèse et caractérisation des matériaux.
 
@@ -70,13 +83,22 @@ const EXAMPLE_PUBLICATIONS = [
 async function main() {
   console.log('🌱 Début du seeding...');
 
+  const adminEmail = process.env.SEED_ADMIN_EMAIL;
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+
+  if (!adminEmail || !adminPassword) {
+    throw new Error(
+      'SEED_ADMIN_EMAIL et SEED_ADMIN_PASSWORD doivent être définis dans .env'
+    );
+  }
+
   // Vérifier si l'admin existe déjà
   const existingAdmin = await prisma.user.findUnique({
-    where: { email: 'tchuifon@gmail.com' },
+    where: { email: adminEmail },
     include: { profile: true },
   });
 
-  const hashedPassword = await bcrypt.hash('DR@@Tchuifon*', 10);
+  const hashedPassword = await bcrypt.hash(adminPassword, 12);
 
   let admin;
 
@@ -85,7 +107,7 @@ async function main() {
 
     // Mettre à jour l'utilisateur et son profil
     admin = await prisma.user.update({
-      where: { email: 'tchuifon@gmail.com' },
+      where: { email: adminEmail },
       data: {
         // Met à jour le mot de passe (au cas où)
         password: hashedPassword,
@@ -110,7 +132,7 @@ async function main() {
     // Créer l'utilisateur admin avec son profil complet
     admin = await prisma.user.create({
       data: {
-        email: 'tchuifon@gmail.com',
+        email: adminEmail,
         password: hashedPassword,
         role: Role.ADMIN,
         profile: {
@@ -131,6 +153,22 @@ async function main() {
   console.log('🎓 Titre:', admin.profile?.title);
   console.log('🏛️  Institution:', admin.profile?.institution);
   console.log('📞 Téléphone:', admin.profile?.phone);
+
+  // Initialiser le carrousel avec les images fournies si aucun slide n'existe
+  console.log('\n🖼️  Initialisation du carrousel...');
+  const slideCount = await prisma.heroSlide.count();
+
+  if (slideCount === 0) {
+    await prisma.heroSlide.createMany({
+      data: DEFAULT_HERO_SLIDES.map((imageUrl, position) => ({
+        imageUrl,
+        position,
+      })),
+    });
+    console.log(`✅ ${DEFAULT_HERO_SLIDES.length} images ajoutées au carrousel`);
+  } else {
+    console.log(`⏩ Carrousel déjà configuré (${slideCount} image(s))`);
+  }
 
   // Optionnel: Créer ou mettre à jour les publications d'exemple
   console.log('\n📚 Gestion des publications d\'exemple...');
